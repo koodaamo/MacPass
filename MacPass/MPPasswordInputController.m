@@ -25,6 +25,8 @@
 #import "MPDocumentWindowController.h"
 #import "MPDocument.h"
 #import "MPSettingsHelper.h"
+#import "MPPathControl.h"
+#import "MPTouchBarButtonCreator.h"
 
 #import "HNHUi/HNHUi.h"
 
@@ -32,10 +34,12 @@
 
 @interface MPPasswordInputController ()
 
+@property (strong) NSButton *showPasswordButton;
 @property (weak) IBOutlet HNHUISecureTextField *passwordTextField;
-@property (weak) IBOutlet NSPathControl *keyPathControl;
+@property (weak) IBOutlet MPPathControl *keyPathControl;
 @property (weak) IBOutlet NSImageView *messageImageView;
 @property (weak) IBOutlet NSTextField *messageInfoTextField;
+@property (strong) IBOutlet NSTextField *keyFileWarningTextField;
 @property (weak) IBOutlet NSButton *togglePasswordButton;
 @property (weak) IBOutlet NSButton *enablePasswordCheckBox;
 @property (weak) IBOutlet NSButton *unlockButton;
@@ -47,6 +51,7 @@
 @property (assign) BOOL showPassword;
 @property (nonatomic, assign) BOOL enablePassword;
 @property (copy) passwordInputCompletionBlock completionHandler;
+
 @end
 
 @implementation MPPasswordInputController
@@ -69,14 +74,13 @@
 }
 
 - (void)viewDidLoad {
+  [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(_didSetKeyURL:) name:MPPathControlDidSetURLNotification object:self.keyPathControl];
   self.messageImageView.image = [NSImage imageNamed:NSImageNameCaution];
   [self.passwordTextField bind:NSStringFromSelector(@selector(showPassword)) toObject:self withKeyPath:NSStringFromSelector(@selector(showPassword)) options:nil];
   [self.togglePasswordButton bind:NSValueBinding toObject:self withKeyPath:NSStringFromSelector(@selector(showPassword)) options:nil];
   [self.enablePasswordCheckBox bind:NSValueBinding toObject:self withKeyPath:NSStringFromSelector(@selector(enablePassword)) options:nil];
   [self.togglePasswordButton bind:NSEnabledBinding toObject:self withKeyPath:NSStringFromSelector(@selector(enablePassword)) options:nil];
   [self.passwordTextField bind:NSEnabledBinding toObject:self withKeyPath:NSStringFromSelector(@selector(enablePassword)) options:nil];
-
-  [self.passwordTextField setNextKeyView:self.keyPathControl];
   [self _reset];
 }
 
@@ -107,15 +111,13 @@
     self.passwordTextField.placeholderString = NSLocalizedString(@"PASSWORD_INPUT_ENTER_PASSWORD", "Placeholder in the unlock-password input field if password is enabled");
   }
   else {
-   self.passwordTextField.placeholderString = NSLocalizedString(@"PASSWORD_INPUT_NO_PASSWORD", "Placeholder in the unlock-password input field if password is disabled");
+    self.passwordTextField.placeholderString = NSLocalizedString(@"PASSWORD_INPUT_NO_PASSWORD", "Placeholder in the unlock-password input field if password is disabled");
   }
 }
-
 
 #pragma mark -
 #pragma mark Private
 - (IBAction)_submit:(id)sender {
-  
   if(!self.completionHandler) {
     return;
   }
@@ -179,5 +181,60 @@
   self.messageImageView.image = [NSImage imageNamed:NSImageNameCaution];
   self.messageInfoTextField.hidden = NO;
 }
+
+
+- (NSTouchBar *)makeTouchBar {
+  NSTouchBar *touchBar = [[NSTouchBar alloc] init];
+  touchBar.delegate = self;
+  touchBar.customizationIdentifier = MPTouchBarCustomizationIdentifierPasswordInput;
+  NSArray<NSTouchBarItemIdentifier> *defaultItemIdentifiers = @[MPTouchBarItemIdentifierShowPassword, MPTouchBarItemIdentifierChooseKeyfile, NSTouchBarItemIdentifierFlexibleSpace,MPTouchBarItemIdentifierUnlock];
+  touchBar.defaultItemIdentifiers = defaultItemIdentifiers;
+  touchBar.customizationAllowedItemIdentifiers = defaultItemIdentifiers;
+  return touchBar;
+}
+
+- (NSTouchBarItem *)touchBar:(NSTouchBar *)touchBar makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier  API_AVAILABLE(macos(10.12.2)) {
+  if (identifier == MPTouchBarItemIdentifierChooseKeyfile) {
+    return [MPTouchBarButtonCreator touchBarButtonWithTitleAndImage:NSLocalizedString(@"TOUCHBAR_CHOOSE_KEYFILE","Touchbar button label for choosing the keyfile") identifier:MPTouchBarItemIdentifierChooseKeyfile image:[NSImage imageNamed:NSImageNameTouchBarFolderTemplate] target:self.keyPathControl selector:@selector(showOpenPanel:) customizationLabel:NSLocalizedString(@"TOUCHBAR_CHOOSE_KEYFILE","Touchbar button label for choosing the keyfile")];
+  } else if (identifier == MPTouchBarItemIdentifierShowPassword) {
+    NSTouchBarItem *item = [MPTouchBarButtonCreator touchBarButtonWithTitleAndImage:NSLocalizedString(@"TOUCHBAR_SHOW_PASSWORD","Touchbar button label for showing the password") identifier:MPTouchBarItemIdentifierShowPassword image:[NSImage imageNamed:NSImageNameTouchBarQuickLookTemplate] target:self selector:@selector(toggleShowPassword) customizationLabel:NSLocalizedString(@"TOUCHBAR_SHOW_PASSWORD","Touchbar button label for showing the password")];
+    _showPasswordButton = (NSButton *) item.view;
+    return item;
+  } else if (identifier == MPTouchBarItemIdentifierUnlock) {
+    return [MPTouchBarButtonCreator touchBarButtonWithImage:[NSImage imageNamed:NSImageNameLockUnlockedTemplate] identifier:MPTouchBarItemIdentifierUnlock target:self selector:@selector(_submit:) customizationLabel:NSLocalizedString(@"TOUCHBAR_UNLOCK_DATABASE","Touchbar button label for unlocking the database")];
+  } else {
+    return nil;
+  }
+}
+
+- (void)toggleShowPassword {
+  self.showPassword = !self.showPassword;
+  self.showPasswordButton.bezelColor = self.showPassword ? [NSColor selectedControlColor] : [NSColor controlColor];
+}
+
+- (void)_didSetKeyURL:(NSNotification *)notification {
+  if(notification.object != self.keyPathControl) {
+    return; // wrong sender
+  }
+  NSDocument *document = (NSDocument *)self.windowController.document;
+  NSData *keyFileData = [NSData dataWithContentsOfURL:self.keyPathControl.URL];
+  KPKFileVersion keyFileVersion = [KPKFormat.sharedFormat fileVersionForData:keyFileData];
+  BOOL isKdbDatabaseFile = (keyFileVersion.format != KPKDatabaseFormatUnknown);
+  if(isKdbDatabaseFile) {
+    if([document.fileURL isEqual:self.keyPathControl.URL]) {
+      self.keyFileWarningTextField.stringValue = NSLocalizedString(@"WARNING_CURRENT_DATABASE_FILE_SELECTED_AS_KEY_FILE", "Error message displayed when the current database file is also set as the key file");
+      self.keyFileWarningTextField.hidden = NO;
+    }
+    else {
+      self.keyFileWarningTextField.stringValue = NSLocalizedString(@"WARNING_DATABASE_FILE_SELECTED_AS_KEY_FILE", "Error message displayed when a keepass database file is set as the key file");
+      self.keyFileWarningTextField.hidden = NO;
+    }
+  }
+  else {
+    self.keyFileWarningTextField.stringValue = @"";
+    self.keyFileWarningTextField.hidden = YES;
+  }
+}
+
 
 @end

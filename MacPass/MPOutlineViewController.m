@@ -143,6 +143,23 @@ NSString *const _MPOutlinveViewHeaderViewIdentifier = @"HeaderCell";
   }
 }
 
+- (void)selectGroup:(KPKGroup *)group {
+  NSMutableArray *parents = [[NSMutableArray alloc] init];
+  NSUUID *groupUUID = group.uuid;
+  while(group.parent) {
+    [parents insertObject:group.parent atIndex:0];
+    group = group.parent;
+  }
+  NSTreeNode *node = [self.outlineView itemAtRow:0];
+  for(KPKGroup *group in parents) {
+    NSUInteger row = [self _rowForUUID:group.uuid node:node];
+    [self.outlineView expandItem:[self.outlineView itemAtRow:row]];
+  }
+  NSUInteger rowToSelect = [self _rowForUUID:groupUUID node:node];
+  [self.outlineView selectRowIndexes:[NSIndexSet indexSetWithIndex:rowToSelect] byExtendingSelection:NO];
+  [self.outlineView scrollRowToVisible:rowToSelect];
+}
+
 - (void)_expandItems:(NSTreeNode *)node {
   id nodeItem = node.representedObject;
   if([nodeItem isKindOfClass:KPKTree.class]) {
@@ -208,6 +225,7 @@ NSString *const _MPOutlinveViewHeaderViewIdentifier = @"HeaderCell";
 #pragma mark Notifications
 - (void)registerNotificationsForDocument:(MPDocument *)document {
   [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(_didAddGroup:) name:MPDocumentDidAddGroupNotification object:document];
+    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(_didRevertDocument:) name:MPDocumentDidRevertNotifiation object:document];
 }
 
 - (void)clearSelection {
@@ -250,6 +268,9 @@ NSString *const _MPOutlinveViewHeaderViewIdentifier = @"HeaderCell";
   NSInteger groupRow = [self.outlineView rowForItem:groupNode];
   [self.outlineView selectRowIndexes:[NSIndexSet indexSetWithIndex:groupRow] byExtendingSelection:NO];
   [self.outlineView scrollRowToVisible:groupRow];
+}
+- (void)_didRevertDocument:(NSNotification *)notification {
+  [self clearSelection];
 }
 
 - (id)itemUnderMouse {
@@ -316,7 +337,7 @@ NSString *const _MPOutlinveViewHeaderViewIdentifier = @"HeaderCell";
     document.tree.metaData.lastSelectedGroup = (groups.count == 1 ? groups.firstObject.uuid : [NSUUID kpk_nullUUID]);
     NSUUID *newVlaue = document.tree.metaData.lastSelectedGroup;
     if(![oldValue isEqual:newVlaue]) {
-      [document updateChangeCount:NSChangeDone|NSChangeDiscardable];
+      document.shouldSaveOnLock = YES;
     }
   }
   document.selectedGroups = groups;

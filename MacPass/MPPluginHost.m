@@ -31,6 +31,7 @@
 #import "MPPluginVersionComparator.h"
 
 #import "NSApplication+MPAdditions.h"
+#import "MPAppDelegate.h"
 #import "MPSettingsHelper.h"
 
 #import "NSError+Messages.h"
@@ -75,6 +76,16 @@ NSString *const MPPluginHostPluginBundleIdentifiyerKey = @"MPPluginHostPluginBun
     _mutablePlugins = [[NSMutableArray alloc] init];
     _entryActionPluginIdentifiers = [[NSMutableArray alloc] init];
     _customAttributePluginIdentifiers = [[NSMutableArray alloc] init];
+    
+    if(MPPluginRepository.defaultRepository.isInitialized) {
+      [self _loadPlugins];
+    }
+    else {
+      [NSNotificationCenter.defaultCenter addObserver:self
+                                             selector:@selector(_didUpdateAvailablePlugins:)
+                                                 name:MPPluginRepositoryDidUpdateAvailablePluginsNotification
+                                               object:MPPluginRepository.defaultRepository];
+    }
   }
   return self;
 }
@@ -142,18 +153,6 @@ NSString *const MPPluginHostPluginBundleIdentifiyerKey = @"MPPluginHostPluginBun
 
 #pragma mark - Plugin Loading
 
-- (void)loadPlugins {
-  if(MPPluginRepository.defaultRepository.isInitialized) {
-    [self _loadPlugins];
-  }
-  else {
-    [NSNotificationCenter.defaultCenter addObserver:self
-                                           selector:@selector(_didUpdateAvailablePlugins:)
-                                               name:MPPluginRepositoryDidUpdateAvailablePluginsNotification
-                                             object:MPPluginRepository.defaultRepository];
-  }
-}
-
 - (void)_didUpdateAvailablePlugins:(NSNotification *)notification {
   [NSNotificationCenter.defaultCenter removeObserver:self
                                                 name:MPPluginRepositoryDidUpdateAvailablePluginsNotification
@@ -188,7 +187,7 @@ NSString *const MPPluginHostPluginBundleIdentifiyerKey = @"MPPluginHostPluginBun
     NSLog(@"No internal plugins found!");
   }
   NSArray *pluginURLs = [externalPluginsURLs arrayByAddingObjectsFromArray:internalPluginsURLs];
-  
+  NSMutableArray *incompatiblePlugins = [[NSMutableArray alloc] init];
   for(NSURL *pluginURL in pluginURLs) {
     if(![self _isValidPluginURL:pluginURL]) {
       NSLog(@"Skipping %@. No valid plugin file.", pluginURL.path);
@@ -202,7 +201,9 @@ NSString *const MPPluginHostPluginBundleIdentifiyerKey = @"MPPluginHostPluginBun
     }
     
     if([self _isDisabledPluginBundle:pluginBundle]) {
-      [self _addPluginForBundle:pluginBundle error:NSLocalizedString(@"PLUGIN_ERROR_DISABLED_PLUGIN", "Error for a plugin that is disabled.")];
+      MPPlugin *plugin = [self _createPluginForBundle:pluginBundle error:NSLocalizedString(@"PLUGIN_ERROR_DISABLED_PLUGIN", "Error for a plugin that is disabled.")];
+      [self _addPlugin:plugin];
+      continue;
     }
     
     if(![self _isSignedPluginURL:pluginURL]) {
@@ -211,7 +212,8 @@ NSString *const MPPluginHostPluginBundleIdentifiyerKey = @"MPPluginHostPluginBun
         NSLog(@"Loading unsecure Plugin at %@.", pluginURL.path);
       }
       else {
-        [self _addPluginForBundle:pluginBundle error:NSLocalizedString(@"PLUGIN_ERROR_UNSECURE_PLUGIN", "Error for a plugin that was not signed properly")];
+        MPPlugin *plugin = [self _createPluginForBundle:pluginBundle error:NSLocalizedString(@"PLUGIN_ERROR_UNSECURE_PLUGIN", "Error for a plugin that was not signed properly")];
+        [self _addPlugin:plugin];
         continue;
       }
     }
@@ -219,7 +221,8 @@ NSString *const MPPluginHostPluginBundleIdentifiyerKey = @"MPPluginHostPluginBun
     NSError *error;
     if(![pluginBundle preflightAndReturnError:&error]) {
       NSLog(@"Preflight Error %@ %@", error.localizedDescription, error.localizedFailureReason );
-      [self _addPluginForBundle:pluginBundle error:error.localizedDescription];
+      MPPlugin *plugin = [self _createPluginForBundle:pluginBundle error:error.localizedDescription];
+      [self _addPlugin:plugin];
       continue;
     };
     
@@ -230,19 +233,23 @@ NSString *const MPPluginHostPluginBundleIdentifiyerKey = @"MPPluginHostPluginBun
     
     if(![self _isCompatiblePluginBundle:pluginBundle error:&error]) {
       NSLog(@"Plugin %@ is not compatible with host!", pluginBundle.bundleIdentifier);
-      [self _addPluginForBundle:pluginBundle error:NSLocalizedString(@"PLUGIN_ERROR_HOST_VERSION_NOT_SUPPORTED", "Plugin is not with this version of MacPass")];
+      MPPlugin *plugin = [self _createPluginForBundle:pluginBundle error:NSLocalizedString(@"PLUGIN_ERROR_HOST_VERSION_NOT_SUPPORTED", "Plugin is not with this version of MacPass")];
+      [self _addPlugin:plugin];
+      [incompatiblePlugins addObject:plugin];
       continue;
     }
     
     if(![pluginBundle loadAndReturnError:&error]) {
       NSLog(@"Bundle Loading Error %@ %@", error.localizedDescription, error.localizedFailureReason);
-      [self _addPluginForBundle:pluginBundle error:error.localizedDescription];
+      MPPlugin *plugin = [self _createPluginForBundle:pluginBundle error:error.localizedDescription];
+      [self _addPlugin:plugin];
       continue;
     }
     
     if(![self _isValidPluginClass:pluginBundle.principalClass]) {
       NSLog(@"Wrong principal Class.");
-      [self _addPluginForBundle:pluginBundle error:NSLocalizedString(@"PLUGIN_ERROR_WRONG_PRINCIPAL_CLASS", "Plugin specifies the wrong principla class!".)];
+      MPPlugin *plugin = [self _createPluginForBundle:pluginBundle error:NSLocalizedString(@"PLUGIN_ERROR_WRONG_PRINCIPAL_CLASS", "Plugin specifies the wrong principla class!".)];
+      [self _addPlugin:plugin];
       continue;
     }
     
@@ -270,17 +277,50 @@ NSString *const MPPluginHostPluginBundleIdentifiyerKey = @"MPPluginHostPluginBun
     }
     else {
       NSLog(@"Unable to create instance of plugin class %@", pluginBundle.principalClass);
-      [self _addPluginForBundle:pluginBundle error:NSLocalizedString(@"PLUGIN_ERROR_INTILIZATION_FAILED", "The plugin could not be initalized".)];
+      MPPlugin *plugin = [self _createPluginForBundle:pluginBundle error:NSLocalizedString(@"PLUGIN_ERROR_INTILIZATION_FAILED", "The plugin could not be initalized".)];
+      [self _addPlugin:plugin];
     }
+  }
+  if(incompatiblePlugins.count > 0) {
+    BOOL hideAlert = NSApplication.sharedApplication.isRunningTests ? YES : NO;
+    if(nil != [NSUserDefaults.standardUserDefaults objectForKey:kMPSettingsKeyHideIncopatiblePluginsWarning]) {
+      hideAlert = [NSUserDefaults.standardUserDefaults boolForKey:kMPSettingsKeyHideIncopatiblePluginsWarning];
+    }
+    if(!hideAlert) {
+
+      NSAlert *alert = [[NSAlert alloc] init];
+      alert.messageText = NSLocalizedString(@"ALERT_INCOMPATIBLE_PLUGINS_ENCOUNTERED_MESSAGE", "Message text of the alert displayed when plugins where disabled due to incompatibilty");
+      alert.informativeText = NSLocalizedString(@"ALERT_INCOMPATIBLE_PLUGINS_ENCOUNTERED_INFORMATIVE_TEXT", "Informative text of the alert displayed when plugins where disabled due to incompatibilty");
+      alert.alertStyle = NSAlertStyleWarning;
+      alert.showsSuppressionButton = YES;
+      [alert addButtonWithTitle:NSLocalizedString(@"ALERT_INCOMPATIBLE_PLUGINS_ENCOUNTERED_BUTTON_OK", @"Button in dialog to leave plugin ds disabled and continiue!")];
+      [alert addButtonWithTitle:NSLocalizedString(@"ALERT_INCOMPATIBLE_PLUGINS_ENCOUNTERED_BUTTON_OPEN_PREFERENCES", @"Button in dialog to open plugin preferences pane!")];
+      NSModalResponse returnCode = [alert runModal];
+      BOOL suppressWarning = (alert.suppressionButton.state == NSOnState);
+      [NSUserDefaults.standardUserDefaults setBool:suppressWarning forKey:kMPSettingsKeyHideIncopatiblePluginsWarning];
+      switch(returnCode) {
+        case NSAlertFirstButtonReturn: {
+          /* ok, ignore */
+          break;
+        }
+        case NSAlertSecondButtonReturn:
+          /* open prefs */
+          [((MPAppDelegate *)NSApp.delegate) showPluginPrefences:nil];
+          break;
+        default:
+          break;
+      }
+    }
+    
   }
 }
 
-- (void)_addPluginForBundle:(NSBundle *)bundle error:(NSString *)errorMessage {
+- (MPPlugin *)_createPluginForBundle:(NSBundle *)bundle error:(NSString *)errorMessage {
   MPPlugin *plugin = [[MPPlugin alloc] initWithPluginHost:self];
   plugin.bundle = bundle;
   plugin.enabled = NO;
   plugin.errorMessage = errorMessage;
-  [self _addPlugin:plugin];
+  return plugin;
 }
 
 - (BOOL)_isUniqueBundle:(NSBundle *)bundle {
@@ -407,18 +447,41 @@ NSString *const MPPluginHostPluginBundleIdentifiyerKey = @"MPPluginHostPluginBun
   [context.plugin performActionForMenuItem:item withEntries:context.entries];
 }
 
+- (NSArray *)_pluginsConformingToProtocoll:(Protocol *)protocol {
+  NSPredicate *filterPredicate = [NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+    return ([evaluatedObject conformsToProtocol:protocol]);
+  }];
+  return [self.mutablePlugins filteredArrayUsingPredicate:filterPredicate];
+}
+
 @end
 
 NSString *const MPPluginBundleIdentifierKey = @"MPPluginBundleIdentifierKey";
 NSString *const MPImportPluginUTIKey = @"MPImportPluginUTIKey";
 
-@implementation MPPluginHost (MPImportPluginSupport)
+@implementation MPPluginHost (MPImportExportPluginSupport)
 
 - (NSArray<MPPlugin *> *)importPlugins {
-  NSPredicate *filterPredicate = [NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
-    return ([evaluatedObject conformsToProtocol:@protocol(MPImportPlugin)]);
-  }];
-  return [self.mutablePlugins filteredArrayUsingPredicate:filterPredicate];
+  return [self _pluginsConformingToProtocoll:@protocol(MPImportPlugin)];
 }
+- (NSArray<MPPlugin<MPImportPlugin> *> *)exportPlugins {
+  return [self _pluginsConformingToProtocoll:@protocol(MPExportPlugin)];
+}
+
 @end
 
+@implementation MPPluginHost (MPWindowTitleResolverSupport)
+
+- (NSArray<MPPlugin *> *)windowTitleResolverForRunningApplication:(NSRunningApplication *)runningApplication {
+  NSArray<MPPlugin<MPAutotypeWindowTitleResolverPlugin> *> *plugins = [self _pluginsConformingToProtocoll:@protocol(MPAutotypeWindowTitleResolverPlugin)];
+  NSMutableArray *resolver = [[NSMutableArray alloc] init];
+  for(MPPlugin<MPAutotypeWindowTitleResolverPlugin> *plugin in plugins) {
+    if([plugin acceptsRunningApplication:runningApplication]) {
+      [resolver addObject:plugin];
+    }
+  }
+  return [resolver copy];
+}
+
+
+@end

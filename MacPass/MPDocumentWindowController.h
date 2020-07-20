@@ -31,16 +31,12 @@
 @class MPOutlineViewController;
 @class MPToolbarDelegate;
 
-@interface MPDocumentWindowController : NSWindowController
+@interface MPDocumentWindowController : NSWindowController <NSTouchBarDelegate>
 
 @property (readonly, strong) MPPasswordInputController *passwordInputController;
-@property (readonly, strong) MPEntryViewController *entryViewController;
-@property (readonly, strong) MPOutlineViewController *outlineViewController;
-@property (readonly, strong) MPInspectorViewController *inspectorViewController;
 @property (readonly, strong) MPToolbarDelegate *toolbarDelegate;
 
-#pragma mark Search
-- (NSSearchField *)searchField;
+@property (readonly, nonatomic, strong) NSSearchField *searchField;
 
 - (void)showEntries;
 - (void)showPasswordInput;
@@ -59,7 +55,8 @@
 - (IBAction)exportAsXML:(id)sender;
 - (IBAction)mergeWithOther:(id)sender;
 - (IBAction)importFromXML:(id)sender;
-- (IBAction)importFromPlugin:(id)sender;
+- (IBAction)importWithPlugin:(id)sender;
+- (IBAction)exportWithPlugin:(id)sender;
 
 - (IBAction)lock:(id)sender;
 - (IBAction)createGroup:(id)sender;
@@ -67,14 +64,16 @@
 - (IBAction)delete:(id)sender;
 
 - (IBAction)duplicateEntryWithOptions:(id)sender;
-
 - (IBAction)pickExpiryDate:(id)sender;
-
 - (IBAction)performAutotypeForEntry:(id)sender;
 
+- (IBAction)showGroupInOutline:(id)sender;
+
+/* actions relayed to MPEntryViewController */
 - (IBAction)copyUsername:(id)sender;
 - (IBAction)copyPassword:(id)sender;
 - (IBAction)copyCustomAttribute:(id)sender;
+- (IBAction)copyAsReference:(id)sender;
 - (IBAction)copyURL:(id)sender;
 - (IBAction)openURL:(id)sender;
 

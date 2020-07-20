@@ -11,7 +11,7 @@ MacPass is an attempt to create a native macOS port of KeePass on a solid open s
 
 All pre-built releases can be found at [Github](https://github.com/mstarke/MacPass/releases).
 
-An unsigned build of the current contiuous tag can be found here: [Continuous Build](https://github.com/mstarke/MacPass/releases/tag/continuous)
+An unsigned build of the current continuous tag can be found here: [Continuous Build](https://github.com/mstarke/MacPass/releases/tag/continuous)
 
 Due to the nature of the build it might be unstable, however this version contains all the latest changes and bug fixes!
 
@@ -37,7 +37,7 @@ After that you can build and run in Xcode. The following command will build and 
 
 ## Help
 
-Some questions might be ansered in the [FAQ](https://github.com/mstarke/MacPass/wiki/FAQ)
+Some questions might be answered in the [FAQ](https://github.com/mstarke/MacPass/wiki/FAQ)
 
 Another place to look is the IRC channel [#macpass](irc://irc.freenode.org/macpass) on [irc.freenode.org](irc://irc.freenode.org)
 
@@ -60,7 +60,7 @@ More Screenshots in the [Wiki](https://github.com/mstarke/MacPass/wiki/Screensho
 
 ## Alternatives
  
-[KeePassX](https://www.keepassx.org) and it's fork [KeePassXC](https://github.com/keepassxreboot/keepassxc). Qt based cross plattform port.
+[KeePassX](https://www.keepassx.org) and its fork [KeePassXC](https://github.com/keepassxreboot/keepassxc). Qt based cross plattform port.
 
 [KyPass Companion](http://www.kyuran.be/logiciels/kypass4mac/). Native macOS client.
 
@@ -104,92 +104,96 @@ The following list might not be complete, please refer to [merged Pull Requests]
 
 ### Contributors
 
-[ad](github.mnms@mamber.net)
-[Alex Borisov](alex@alexborisov.org)
-[Alex Seeholzer](seeholzer@gmail.com)
-[amd](amd@gurge.com)
-[Andrew Schleifer](me@andrewschleifer.name)
-[AntoineCa](antoine@carrincazeaux.fr)
-[Benjamin Steinwender](b@stbe.at)
-[binarious](bieder.martin@googlemail.com)
-[Carlos Filipe Simões](ravemir@users.noreply.github.com)
-[Chester Liu](skyline75489@outlook.com)
-[Chhom Seng](chhom.seng@gmail.com)
-[Christoph Leimbrock](christoph.leimbrock@gmx.de)
-[Cory Hutchison](cjhutchi@users.noreply.github.com)
-[Daniele Polencic](daniele.polencic@gmail.com)
-[darnel](vojta.j@gmail.com)
-[Deiwin Sarjas](deiwin.sarjas@gmail.com)
-[Dennis Bolio](git@bolio.nl)
-[Dylan Smith](dylansmith@gmail.com)
-[eiermaaaan](37532252+eiermaaaan@users.noreply.github.com)
-[Filipe Farinha](filipe@ktorn.com)
-[floriangouy](florian.gouy@gmail.com)
-[Francesco Servida](info@francescoservida.ch)
-[Frank Enderle](frank.enderle@anamica.de)
-[Frank Kooij](FrankKooij@users.noreply.github.com)
-[Gaétan Ryckeboer](gryckeboer@jouve.com)
-[Geigi](git@geigi.de)
-[Henri de Jong](henridejong@gmail.com)
-[James Hurst](jamesrhurst@outlook.com)
-[Jannick Hemelhof](mister.jannick@gmail.com)
-[Jefftree](jeffrey.ying86@live.com)
-[Jellyfrog](Jellyfrog@users.noreply.github.com)
-[Joanna Olsen](jo4flash@gmail.com)
-[Josh Halstead](jhalstead85@gmail.com)
-[Kurt](kurt@soapbox-software.com)
-[Lenucksi](lenucksi@users.noreply.github.com)
-[Leonardo Faoro](lfaoro@users.noreply.github.com)
-[Liam Anderson](liam.anderson.91@gmail.com)
-[Maarten Terpstra](m.l.terpstra@student.rug.nl)
-[Mario Sangiorgio](mariosangiorgio@gmail.com)
-[MBibal](michel.bibal@gmail.com)
-[Michael Belz](mbelz@outlook.de)
-[MichaelKo](viacheslav.sychov@gmail.com)
-[Michal Jaglewicz](michalj@webii.pl)
-[Moises Perez](moises@perez.lt)
-[mrdoggy](mrdoggy.all@gmail.com)
-[Nathan Landis](nathanlandis@gmail.com)
-[Nathaniel Madura](nmadura@umich.edu)
-[neuroine](d.dzieduch@gmail.com)
-[Patrik Thunström](magebarf@gmail.com)
-[rdoering](rdoering.info@gmail.com)
-[Ryan Rogers](ryan@timewasted.me)
-[Sitsofe Wheeler](sitsofe@yahoo.com)
-[Stephen Taylor](schtee.taylor@gmail.com)
-[Thom](thomscode@gmail.com)
-[Thorsten Jacoby](tjacoby@gmail.com)
-[Volcyy](Volcyy@users.noreply.github.com)
-[Yonatan Mittlefehldt](yono@toojuice.com)
-[Zero King](l2dy@icloud.com)
-[Zhao Peng](patchao2000@gmail.com)
+[ad](mailto:github.mnms@mamber.net),
+[Alessandro Vinciguerra](mailto:30745465+Arc676@users.noreply.github.com),
+[Alex Borisov](mailto:alex@alexborisov.org),
+[Alex Seeholzer](mailto:seeholzer@gmail.com),
+[amd](mailto:amd@gurge.com),
+[Andrew Schleifer](mailto:me@andrewschleifer.name),
+[AntoineCa](mailto:antoine@carrincazeaux.fr),
+[Anton Glezman](mailto:anton@glezman.ru),
+[Benjamin Steinwender](mailto:b@stbe.at),
+[binarious](mailto:bieder.martin@googlemail.com),
+[Can Rau](mailto:cansrau@gmail.com),
+[Carlos Filipe Simões](mailto:ravemir@users.noreply.github.com),
+[Chester Liu](mailto:skyline75489@outlook.com),
+[Chhom Seng](mailto:chhom.seng@gmail.com),
+[Christoph Leimbrock](mailto:christoph.leimbrock@gmx.de),
+[Cory Hutchison](mailto:cjhutchi@users.noreply.github.com),
+[César Arratia](mailto:buttcmd@gmail.com),
+[Daniele Polencic](mailto:daniele.polencic@gmail.com),
+[darnel](mailto:vojta.j@gmail.com),
+[Deiwin Sarjas](mailto:deiwin.sarjas@gmail.com),
+[Deniz Türkoglu](mailto:denizt@users.noreply.github.com),
+[Dennis Bolio](mailto:git@bolio.nl),
+[Dylan Smith](mailto:dylansmith@gmail.com),
+[eiermaaaan](mailto:37532252+eiermaaaan@users.noreply.github.com),
+[Erwann Mest](mailto:m+github@kud.io),
+[Filipe Farinha](mailto:filipe@ktorn.com),
+[floriangouy](mailto:florian.gouy@gmail.com),
+[Francesco Servida](mailto:info@francescoservida.ch),
+[Frank Enderle](mailto:frank.enderle@anamica.de),
+[Frank Kooij](mailto:FrankKooij@users.noreply.github.com),
+[Gaétan Ryckeboer](mailto:gryckeboer@jouve.com),
+[Geigi](mailto:git@geigi.de),
+[George Snow](mailto:gsnowiii@gmail.com),
+[Henri de Jong](mailto:henridejong@gmail.com),
+[James Hurst](mailto:jamesrhurst@outlook.com),
+[Jannick Hemelhof](mailto:mister.jannick@gmail.com),
+[Jefftree](mailto:jeffrey.ying86@live.com),
+[Jellyfrog](mailto:Jellyfrog@users.noreply.github.com),
+[Jesse Reppin](mailto:mail@jessereppin.de),
+[Joanna Olsen](mailto:jo4flash@gmail.com),
+[Josh Halstead](mailto:jhalstead85@gmail.com),
+[Kurt](mailto:kurt@soapbox-software.com),
+[Laurent Cozic](mailto:laurent22@users.noreply.github.com),
+[Lenucksi](mailto:lenucksi@users.noreply.github.com),
+[Leonardo Faoro](mailto:lfaoro@users.noreply.github.com),
+[Liam Anderson](mailto:liam.anderson.91@gmail.com),
+[m0yP](mailto:moises@perez.lt),
+[Maarten Terpstra](mailto:m.l.terpstra@student.rug.nl),
+[Mario Sangiorgio](mailto:mariosangiorgio@gmail.com),
+[MBibal](mailto:michel.bibal@gmail.com),
+[Michael Belz](mailto:mbelz@outlook.de),
+[MichaelKo](mailto:viacheslav.sychov@gmail.com),
+[Michal Jaglewicz](mailto:michalj@webii.pl),
+[Moises Perez](mailto:moises@perez.lt),
+[mrdoggy](mailto:mrdoggy.all@gmail.com),
+[Nathan Landis](mailto:nathanlandis@gmail.com),
+[Nathaniel Madura](mailto:nmadura@umich.edu),
+[neuroine](mailto:d.dzieduch@gmail.com),
+[Oleksandr Yakubchyk](mailto:buddax2@gmail.com),
+[Patrik Thunström](mailto:magebarf@gmail.com),
+[rdoering](mailto:rdoering.info@gmail.com),
+[remi6397](mailto:remi6397@gmail.com),
+[Roman Verchikov](mailto:roman-verchikov@users.noreply.github.com),
+[Ryan Rogers](mailto:ryan@timewasted.me),
+[Sitsofe Wheeler](mailto:sitsofe@yahoo.com),
+[Stephen Taylor](mailto:schtee.taylor@gmail.com),
+[thesoundofom](mailto:45923716+thesoundofom@users.noreply.github.com),
+[Thom](mailto:thomscode@gmail.com),
+[Thorsten Jacoby](mailto:tjacoby@gmail.com),
+[Veit-Hendrik Schlenker](mailto:git@vhschlenker.de),
+[Volcyy](mailto:Volcyy@users.noreply.github.com),
+[Yonatan Mittlefehldt](mailto:yono@toojuice.com),
+[Zero King](mailto:l2dy@icloud.com),
+[Zhao Peng](mailto:patchao2000@gmail.com)
 
 ## Copyright
 
 This Project is based upon the following work:
 
-[KeePassKit](https://github.com/mstarke/KeePassKit) Copyright 2012 HicknHack Software GmbH. All rights reserved.
-
-[HNHUi](https://github.com/mstarke/HNHUi) Copyright 2012 HicknHack Software GmbH. All rights reserved.
-
-[MiniKeePass](https://github.com/MiniKeePass/MiniKeePass) Copyright 2011 Jason Rush and John Flanagan. All rights reserved.
-
-[KeePass Database Library](https://github.com/mpowrie/KeePassLib) Copyright 2010 Qiang Yu. All rights reserved.
-
-[PXSourceList](https://github.com/Perspx/PXSourceList) Copyright 2011, Alex Rozanski. All rights reserved.
-
-[KSPasswordField](https://github.com/karelia/SecurityInterface) Copyright 2012 Mike Abdullah, Karelia Software. All rights reserved.
-
-[DDHotKey](https://github.com/davedelong/DDHotKey) Copyright [Dave DeLong](http://www.davedelong.com). All rights reserved.
-
-[Sparkle](http://sparkle.andymatuschak.org) Copyright 2006 Andy Matuschak
-
-[TransformerKit](https://github.com/mattt/TransformerKit) Licensed under MIT license. Copyright 2012 [Mattt Thompson](http://mattt.me/). All rights reserved
-
-[MJGFoundation](https://github.com/mstarke/MJGFoundation) Licensed under BSD 2-Clause License. Copyright 2011 [Matt Galloway](http://www.galloway.me.uk/). All rights reserved.
-
-[ShortcutRecorder](http://wafflesoftware.net/shortcut/) Copyright 2006—2013 all [Shortcut Recorder contributors](http://wafflesoftware.net/shortcut/contributors/)
-
+[KeePassKit](https://github.com/mstarke/KeePassKit) Copyright 2012 HicknHack Software GmbH. All rights reserved.  
+[HNHUi](https://github.com/mstarke/HNHUi) Copyright 2012 HicknHack Software GmbH. All rights reserved.  
+[MiniKeePass](https://github.com/MiniKeePass/MiniKeePass) Copyright 2011 Jason Rush and John Flanagan. All rights reserved.  
+[KeePass Database Library](https://github.com/mpowrie/KeePassLib) Copyright 2010 Qiang Yu. All rights reserved.  
+[PXSourceList](https://github.com/Perspx/PXSourceList) Copyright 2011, Alex Rozanski. All rights reserved.  
+[KSPasswordField](https://github.com/karelia/SecurityInterface) Copyright 2012 Mike Abdullah, Karelia Software. All rights reserved.  
+[DDHotKey](https://github.com/davedelong/DDHotKey) Copyright [Dave DeLong](http://www.davedelong.com). All rights reserved.  
+[Sparkle](http://sparkle.andymatuschak.org) Copyright 2006 Andy Matuschak  
+[TransformerKit](https://github.com/mattt/TransformerKit) Licensed under MIT license. Copyright 2012 [Mattt Thompson](http://mattt.me/). All rights reserved  
+[MJGFoundation](https://github.com/mstarke/MJGFoundation) Licensed under BSD 2-Clause License. Copyright 2011 [Matt Galloway](http://www.galloway.me.uk/). All rights reserved.  
+[ShortcutRecorder](http://wafflesoftware.net/shortcut/) Copyright 2006—2013 all [Shortcut Recorder contributors](http://wafflesoftware.net/shortcut/contributors/)  
 [NSBundle Codesignature Check](http://jedda.me/2012/03/verifying-plugin-bundles-using-code-signing/) Copyright 2014 [Jedda Wignall](http://jedda.me). All rights reserved.
 
 See submodules for additional Licenses

@@ -37,8 +37,8 @@
 }
 
 - (void)viewDidLoad {
-  [self.searchKeyPopUpButton setMenu:[self _allocateAttributeItemMenu:YES withTitle:NSLocalizedString(@"SEARCH_VALUE", "")]];
-  [self.valuePopUpButton setMenu:[self _allocateAttributeItemMenu:NO withTitle:NSLocalizedString(@"OUTPUT_VALUE", "")]];
+  self.searchKeyPopUpButton.menu = [self _allocateAttributeItemMenu:YES withTitle:NSLocalizedString(@"SEARCH_VALUE", "Search field for references lookup")];
+  self.valuePopUpButton.menu = [self _allocateAttributeItemMenu:NO withTitle:NSLocalizedString(@"OUTPUT_VALUE", "Value field for reference lookup")];
   [self.searchStringTextField bind:NSValueBinding toObject:self withKeyPath:NSStringFromSelector(@selector(searchString)) options:nil];
   [self _updateReferenceString];
 }
@@ -53,7 +53,7 @@
   [menu addItemWithTitle:NSLocalizedString(@"URL","URL reference item") action:NULL keyEquivalent:@""];
   [menu addItemWithTitle:NSLocalizedString(@"NOTES","Notes reference item") action:NULL keyEquivalent:@""];
   if(allowCustomAttributes) {
-    [menu addItemWithTitle:NSLocalizedString(@"CUSTOM_ATTRIBUTE","Curstom attribute reference item") action:NULL keyEquivalent:@""];
+    [menu addItemWithTitle:NSLocalizedString(@"CUSTOM_ATTRIBUTE","Custom attribute reference item") action:NULL keyEquivalent:@""];
   }
   NSArray *keys = @[ kKPKReferenceUUIDKey, kKPKReferenceTitleKey, kKPKReferenceUsernameKey, kKPKReferencePasswordKey, kKPKReferenceURLKey, kKPKReferenceNotesKey, @"S" ];
   [menu.itemArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {

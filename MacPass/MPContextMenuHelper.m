@@ -42,6 +42,7 @@ static void MPContextmenuHelperBeginSection(NSMutableArray *items) {
   BOOL const insertDuplicate = MPIsFlagSetInOptions(MPContextMenuDuplicate, flags);
   BOOL const insertAutotype = MPIsFlagSetInOptions(MPContextMenuAutotype, flags);
   BOOL const insertHistory = MPIsFlagSetInOptions(MPContextMenuHistory, flags);
+  BOOL const insertShowGroupInOutline = MPIsFlagSetInOptions(MPContextMenuShowGroupInOutline, flags);
   
   NSMutableArray *items = [NSMutableArray arrayWithCapacity:10];
   if(insertCreate) {
@@ -63,8 +64,11 @@ static void MPContextmenuHelperBeginSection(NSMutableArray *items) {
     NSMenuItem *duplicateEntyWithOptions = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"DUPLICATE_ENTRY_WITH_OPTIONS", @"Menu item to duplicate an entry with options how to duplicate. Will present a dialog.")
                                                                       action:[MPActionHelper actionOfType:MPActionDuplicateEntryWithOptions]
                                                                keyEquivalent:@""];
-    
-    [items addObjectsFromArray:@[ duplicateEntry, duplicateEntyWithOptions ]];
+    NSMenuItem *duplicateGroup = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"DUPLICATE_GROUP", @"Menu item to directly diplicate a group")
+                                                            action:[MPActionHelper actionOfType:MPActionDuplicateGroup]
+                                                     keyEquivalent:@""];
+
+    [items addObjectsFromArray:@[ duplicateEntry, duplicateEntyWithOptions, duplicateGroup ]];
     
   }
   if(insertDelete || insertTrash) {
@@ -80,7 +84,7 @@ static void MPContextmenuHelperBeginSection(NSMutableArray *items) {
       NSMenuItem *emptyTrash = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"EMPTY_TRASH", @"Menu item to empty the trash")
                                                           action:[MPActionHelper actionOfType:MPActionEmptyTrash]
                                                    keyEquivalent:@""];
-      emptyTrash.keyEquivalentModifierMask = (NSShiftKeyMask | NSCommandKeyMask);
+      emptyTrash.keyEquivalentModifierMask = (NSEventModifierFlagShift | NSEventModifierFlagCommand);
       unichar backSpace = NSBackspaceCharacter;
       emptyTrash.keyEquivalent = [NSString stringWithCharacters:&backSpace length:1];
       [items addObject:emptyTrash];
@@ -95,7 +99,7 @@ static void MPContextmenuHelperBeginSection(NSMutableArray *items) {
     NSMenuItem *copyPassword = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"COPY_PASSWORD", @"Menu item to copy the password of an entry")
                                                           action:[MPActionHelper actionOfType:MPActionCopyPassword]
                                                    keyEquivalent:@"c"];
-    copyPassword.keyEquivalentModifierMask = (copyPassword.keyEquivalentModifierMask | NSAlternateKeyMask);
+    copyPassword.keyEquivalentModifierMask = (copyPassword.keyEquivalentModifierMask | NSEventModifierFlagOption);
     NSMenu *urlMenu = [[NSMenu alloc] init];
     NSMenuItem *urlItem = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"URL", @"Submenu with options what to do with the URL of an entry")
                                                      action:0
@@ -113,7 +117,7 @@ static void MPContextmenuHelperBeginSection(NSMutableArray *items) {
     
     [items addObjectsFromArray:@[ copyUsername, copyPassword, urlItem]];
   }
-  if(insertAutotype || insertHistory) {
+  if(insertAutotype || insertHistory || insertShowGroupInOutline) {
     MPContextmenuHelperBeginSection(items);
     if(insertAutotype) {
       NSMenuItem *performAutotype = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"PERFORM_AUTOTYPE_FOR_ENTRY", @"Menu item to perform autotype with the selected entry")
@@ -125,8 +129,14 @@ static void MPContextmenuHelperBeginSection(NSMutableArray *items) {
       NSMenuItem *showHistory = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"SHOW_HISTORY", @"Menu item to show the history of the selected entry")
                                                                action:[MPActionHelper actionOfType:MPActionShowEntryHistory]
                                                         keyEquivalent:@"h"];
-      showHistory.keyEquivalentModifierMask = (showHistory.keyEquivalentModifierMask | NSCommandKeyMask | NSControlKeyMask);
+      showHistory.keyEquivalentModifierMask = (showHistory.keyEquivalentModifierMask | NSEventModifierFlagCommand | NSEventModifierFlagControl);
       [items addObject:showHistory];
+    }
+    if(insertShowGroupInOutline) {
+      NSMenuItem *showGroupInOutline = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"SHOW_GROUP_IN_OUTLINE", @"Menu item to show the entries group in the outline view")
+                                                                  action:[MPActionHelper actionOfType:MPActionShowGroupInOutline]
+                                                           keyEquivalent:@""];
+      [items addObject:showGroupInOutline];
     }
   }
   

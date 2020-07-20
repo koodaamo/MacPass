@@ -78,6 +78,7 @@ FOUNDATION_EXPORT NSString *const MPDocumentGroupKey;
 @property (nonatomic, strong, readonly) KPKCompositeKey *compositeKey;
 
 @property (assign, readonly, getter = isReadOnly) BOOL readOnly;
+@property (atomic, assign) BOOL shouldSaveOnLock;
 @property (nonatomic, readonly, assign) KPKDatabaseFormat formatForFileType;
 
 /*
@@ -91,6 +92,8 @@ FOUNDATION_EXPORT NSString *const MPDocumentGroupKey;
 
 /*
  Search - see MPDocument+Search for further details
+ 
+ FIXME: Document is pinned to mode bases search. Wrong design!
  */
 @property (nonatomic, readonly) BOOL hasSearch;
 @property (nonatomic, copy) MPEntrySearchContext *searchContext;
@@ -175,6 +178,7 @@ FOUNDATION_EXPORT NSString *const MPDocumentGroupKey;
  */
 - (IBAction)createEntryFromTemplate:(id)sender;
 - (IBAction)duplicateEntry:(id)sender;
+- (IBAction)duplicateGroup:(id)sender;
 
 @end
 

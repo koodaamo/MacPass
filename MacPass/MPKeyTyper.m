@@ -8,6 +8,7 @@
 
 #import "MPKeyTyper.h"
 #import "MPKeyMapper.h"
+#import "MPAutotypeDaemon.h"
 
 @implementation MPKeyTyper
 
@@ -40,7 +41,7 @@
   CGEventSetFlags(pressKey, key.modifier);
   CGEventSetFlags(releaseKey, key.modifier);
   
-  unichar *charBuffer;
+  unichar *charBuffer = 0;
   if(text.length > 0) {
     charBuffer = malloc(sizeof(unichar) * text.length);
     [text getCharacters:charBuffer range:NSMakeRange(0, text.length)];
@@ -51,17 +52,14 @@
   /* Send the event */
   CGEventPost(kCGHIDEventTap, pressKey);
   /* TODO: Evaluate postToPid */
-  usleep(0.05 * NSEC_PER_MSEC);
+  //usleep(0.025 * NSEC_PER_MSEC);
   CGEventPost(kCGHIDEventTap, releaseKey);
-  /* TODO: Evaluate postToPid */
   
   CFRelease(pressKey);
   CFRelease(releaseKey);
   CFRelease(eventSource);
   
-  if(text.length > 0) {
-    free(charBuffer);
-  }
+  free(charBuffer);
 }
 
 + (void)sendPaste {

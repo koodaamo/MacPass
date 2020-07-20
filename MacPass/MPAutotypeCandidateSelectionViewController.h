@@ -22,12 +22,19 @@
 
 #import <Cocoa/Cocoa.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
+@class MPAutotypeEnvironment;
+@class MPAutotypeContext;
+
 @interface MPAutotypeCandidateSelectionViewController : NSViewController
 
-@property (copy) NSArray *candidates;
-
+@property (strong) MPAutotypeEnvironment *environment;
+@property (copy) NSArray<MPAutotypeContext *> *candidates;
+ 
 - (IBAction)selectAutotypeContext:(id)sender;
 - (IBAction)cancelSelection:(id)sender;
 
-
 @end
+
+NS_ASSUME_NONNULL_END

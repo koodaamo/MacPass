@@ -28,10 +28,13 @@ typedef NS_ENUM(NSUInteger, MPActionType) {
   MPActionAddGroup, // Add a new group
   MPActionDuplicateEntry, // Simply duplicate an entry (including history)
   MPActionDuplicateEntryWithOptions, // Request user input on what to duplicate
+  MPActionDuplicateGroup, // Duplicate the group and all it's children
   MPActionReverToHistoryEntry, // Restore an entry to an older state in history
   MPActionDelete, // Delete entry or group
   MPActionCopyUsername, // copy username to pasteboard
   MPActionCopyPassword, // copy password to pasteboard
+  MPActionCopyCustomAttribute, // copy a custom attribute to the pasteboard
+  MPActionCopyAsReference, // copy a reference to the attribute {REF:…} to the pasteboard
   MPActionCopyURL, // copy url to pasteboard
   MPActionOpenURL, // open url in default browser
   MPActionToggleInspector,
@@ -45,6 +48,7 @@ typedef NS_ENUM(NSUInteger, MPActionType) {
   MPActionToggleQuicklook,
   MPActionShowEntryHistory, // show history
   MPActionHideEntryHistory, // exit history
+  MPActionShowGroupInOutline, // show the group (of the entry) in the outline view
   MPActionPerformAutotypeForSelectedEntry, // Perform Autotype for selected Entry
   MPActionRemoveAttachment // Remove an attachment
 };

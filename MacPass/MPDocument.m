@@ -61,6 +61,7 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
 @interface MPDocument () {
 @private
   BOOL _didLockFile;
+  BOOL _shoudlSaveOnLock;
 }
 
 @property (nonatomic, assign) NSUInteger unlockCount;
@@ -115,7 +116,7 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
 }
 
 + (BOOL)autosavesInPlace {
-  return YES;
+  return [NSUserDefaults.standardUserDefaults boolForKey:kMPSettingsKeyEnableAutosave];
 }
 
 - (instancetype)init {
@@ -124,6 +125,7 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
     _didLockFile = NO;
     _readOnly = NO;
     _lockedForFileChange = NO;
+    self.shouldSaveOnLock = NO;
   }
   return self;
 }
@@ -166,20 +168,28 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
                               NSRecoveryAttempterErrorKey : recovery
                               };
   if(outError != NULL) {
-    *outError = [NSError errorWithDomain:MPErrorDomain code:MPErrorNoPasswordOrKeyFile userInfo:userInfo];
+    *outError = [NSError errorWithDomain:MPDefaultErrorDomain code:MPErrorNoPasswordOrKeyFile userInfo:userInfo];
   }
   return NO;
 }
 
+- (NSString *)fileNameExtensionForType:(NSString *)typeName saveOperation:(NSSaveOperationType)saveOperation {
+  NSString *proposedExtension = [super fileNameExtensionForType:typeName saveOperation:saveOperation];
+  if(!self.fileURL) {
+    return proposedExtension;
+  }
+  return self.fileURL.pathExtension;
+}
+
 - (NSData *)dataOfType:(NSString *)typeName error:(NSError * _Nullable __autoreleasing *)outError {
   if(self.encrypted) {
-    NSAssert(!self.encrypted, @"%@ should not be called on locked databases!", NSStringFromSelector(_cmd));
-    //return self.encryptedData;
+    NSLog(@"%@ should not be called on locked databases!", NSStringFromSelector(_cmd));
+    return self.encryptedData;
   }
   if(!self.compositeKey.hasPasswordOrKeyFile) {
     if(outError != NULL) {
       NSDictionary *userInfo = @{ NSLocalizedDescriptionKey: NSLocalizedString(@"WARNING_ON_SAVE_NO_PASSWORD_OR_KEY_SET", "") };
-      *outError = [NSError errorWithDomain:MPErrorDomain code:0 userInfo:userInfo];
+      *outError = [NSError errorWithDomain:MPDefaultErrorDomain code:0 userInfo:userInfo];
     }
     return nil; // Saving without a password/key is not possible
   }
@@ -188,7 +198,7 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
   if(format == KPKDatabaseFormatUnknown) {
     if(outError != NULL) {
       NSDictionary *userInfo = @{ NSLocalizedDescriptionKey: NSLocalizedString(@"UNKNOWN_FILE_VERSION", "") };
-      *outError = [NSError errorWithDomain:MPErrorDomain code:0 userInfo:userInfo];
+      *outError = [NSError errorWithDomain:MPDefaultErrorDomain code:0 userInfo:userInfo];
     }
     return nil; // We do not know what version to save!
   }
@@ -285,7 +295,7 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
         return;
       }
       NSAlert *alert = [[NSAlert alloc] init];
-      alert.alertStyle = NSWarningAlertStyle;
+      alert.alertStyle = NSAlertStyleWarning;
       alert.messageText = NSLocalizedString(@"FILE_CHANGED_BY_OTHERS_MESSAGE_TEXT", @"Message displayed when an open file was changed from another application");
       alert.informativeText = NSLocalizedString(@"FILE_CHANGED_BY_OTHERS_INFO_TEXT", @"Informative text displayed when the file was change from another application");
       alert.showsSuppressionButton = YES;
@@ -324,6 +334,8 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
     [self mergeWithContentsFromURL:self.fileURL key:self.compositeKey];
   }
   else if(strategy == MPFileChangeStrategyUseOther) {
+    /* dispatch? */
+    
     [self revertToContentsOfURL:self.fileURL ofType:self.fileType error:nil];
   }
   // else do nothing!
@@ -357,7 +369,7 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
   
   if(mergeKDB) {
     NSAlert *alert = [[NSAlert alloc] init];
-    alert.alertStyle = NSWarningAlertStyle;
+    alert.alertStyle = NSAlertStyleWarning;
     alert.messageText = NSLocalizedString(@"ALERT_MERGE_KDB_FILE_MESSAGE", @"Alert message warning user about KDB file merge");
     alert.informativeText = NSLocalizedString(@"ALERT_MERGE_KDB_FILE_INFO_TEXT", @"Informative text displayed when merging KDB files");
     [alert addButtonWithTitle:NSLocalizedString(@"ALERT_MERGE_CONTINUE", @"Button in dialog to merge KDB changes into file!")];
@@ -389,7 +401,6 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
   if(otherTree) {
     [self.tree synchronizeWithTree:otherTree mode:KPKSynchronizationModeSynchronize options:options];
     /* the key might have changed so update ours! */
-    //self.compositeKey = key;
     [self updateChangeCount:NSChangeDone];
     NSUserNotification *notification = [[NSUserNotification alloc] init];
     notification.title = NSApp.applicationName;
@@ -432,7 +443,7 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
 #pragma mark Lock/Unlock/Decrypt
 - (void)lockDatabase:(id)sender {
   /*
-   [self saveDocument] is enqued so that dataOfType is called too late to actually save teh database.
+   [self saveDocument] is enqued so that dataOfType is called too late to actually save the database.
    hence we need to get the ok from the NSDocument about the save, otherwise the lock fails!
    */
   // only lock if we do not have user interaction that cannot be dismissed!
@@ -440,8 +451,9 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
     for(NSWindow *sheet in self.windowForSheet.sheets) {
       [self.windowForSheet endSheet:sheet];
     }
-    if(self.documentEdited) {
+    if(self.documentEdited || self.shouldSaveOnLock) {
       [self saveDocumentWithDelegate:self didSaveSelector:@selector(_lockDatabaseForDocument:didSave:contextInfo:) contextInfo:NULL];
+      self.shouldSaveOnLock = NO;
     }
     else {
       [self _lockDatabaseForDocument:self didSave:YES contextInfo:NULL];
@@ -455,7 +467,7 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
     return; // wrong parameters
   }
   if(!didSave) {
-    return; // not saved!
+    return; // not saved we need to be sure it happend!
   }
   /* FIXME: User feedback is ignored */
   [self exitSearch:self];
@@ -519,7 +531,7 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
 }
 
 - (NSURL *)suggestedKeyURL {
-  MPAppDelegate *delegate = (MPAppDelegate *)[NSApp delegate];
+  MPAppDelegate *delegate = (MPAppDelegate *)NSApp.delegate;
   if(!delegate.isAllowedToStoreKeyFile) {
     return nil;
   }
@@ -626,7 +638,7 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
   if(!metaData.enforceMasterKeyChange) {
     return NO;
   }
-  return ((24*60*60*metaData.masterKeyChangeEnforcementInterval) < -[metaData.masterKeyChanged timeIntervalSinceNow]);
+  return ((24*60*60*metaData.masterKeyChangeEnforcementInterval) < - metaData.masterKeyChanged.timeIntervalSinceNow);
 }
 
 - (BOOL)shouldRecommendPasswordChange {
@@ -634,7 +646,7 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
   if(!metaData.recommendMasterKeyChange) {
     return NO;
   }
-  return ( (24*60*60*metaData.masterKeyChangeRecommendationInterval) < -[metaData.masterKeyChanged timeIntervalSinceNow]);
+  return ( (24*60*60*metaData.masterKeyChangeRecommendationInterval) < - metaData.masterKeyChanged.timeIntervalSinceNow);
 }
 
 #pragma mark Data manipulation
@@ -739,7 +751,7 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
 #pragma mark Actions
 - (void)emptyTrash:(id)sender {
   NSAlert *alert = [[NSAlert alloc] init];
-  alert.alertStyle = NSWarningAlertStyle;
+  alert.alertStyle = NSAlertStyleWarning;
   alert.messageText = NSLocalizedString(@"WARNING_ON_EMPTY_TRASH_TITLE", "Message text for the alert displayed when clearing the Trash");
   alert.informativeText = NSLocalizedString(@"WARNING_ON_EMPTY_TRASH_DESCRIPTION", "Informative Text displayed when clearing the Trash");
   
@@ -758,7 +770,7 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
   KPKEntry *entry = node.asEntry;
   
   NSAlert *alert = [[NSAlert alloc] init];
-  alert.alertStyle = NSWarningAlertStyle;
+  alert.alertStyle = NSAlertStyleWarning;
   alert.messageText = NSLocalizedString(@"WARNING_ON_DELETE_TRASHED_NODE_TITLE", "Message text for the alert displayed when deleting a node");
   alert.informativeText = NSLocalizedString(@"WARNING_ON_DELETE_TRASHED_NODE_DESCRIPTION", "Informative Text displayed when clearing the Trash");
   
@@ -824,7 +836,16 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
     KPKEntry *duplicate = [entry copyWithTitle:nil options:options];
     [duplicate addToGroup:entry.parent];
   }
-  [self.undoManager setActionName:[NSString stringWithFormat:NSLocalizedString(@"DUPLICATE_ENTRIES_%ld", @"Action name for duplicating entries"), self.selectedEntries.count]];
+  [self.undoManager setActionName:[NSString stringWithFormat:NSLocalizedString(@"DUPLICATE_ENTRIES_ACTION_NAME", @"Action name for duplicating entries"), self.selectedEntries.count]];
+}
+
+- (void)duplicateGroup:(id)sender {
+  for(KPKGroup *group in self.selectedGroups) {
+    KPKGroup *duplicate = [group copyWithTitle:nil options:kKPKCopyOptionNone];
+    /* if group is root group, add the duplicate below */
+    [duplicate addToGroup:(group.parent ? group.parent : group)];
+  }
+  [self.undoManager setActionName:[NSString stringWithFormat:NSLocalizedString(@"DUPLICATE_GROUPS_ACTION_NAME", @"Action name for duplicating groups"), self.selectedGroups.count]];
 }
 
 #pragma mark Validation
@@ -882,6 +903,9 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
       valid &= targetEntries.count > 0;
       valid &= !self.historyEntry;
       break;
+    case MPActionDuplicateGroup:
+      valid &= targetGroups.count > 0;
+      break;
     case MPActionEmptyTrash:
       valid &= (self.trash.groups.count + self.trash.entries.count) > 0;
       break;
@@ -907,7 +931,13 @@ NSString *const MPDocumentGroupKey                            = @"MPDocumentGrou
       valid &= (nil != targetEntry ) && (targetEntry.url.length > 0);
       break;
     case MPActionPerformAutotypeForSelectedEntry:
+    case MPActionCopyCustomAttribute:
+    case MPActionCopyAsReference:
       valid &= (nil != targetEntry);
+      break;
+    case MPActionShowGroupInOutline:
+      valid &= (nil != targetEntry);
+      valid &= self.hasSearch;
       break;
     default:
       break;

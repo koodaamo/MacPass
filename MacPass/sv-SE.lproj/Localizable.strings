@@ -57,10 +57,10 @@
 "AUTOTYPE_NO" = "Avaktivera auto-ifyllning";
 
 /* Notification: Autotype failed, no documents are open */
-"AUTOTYPE_OVERLAY_NO_DOCUMENTS" = "Var vänlig och öppna en databas för att använda auto-ifyllning!";
+"AUTOTYPE_NOTIFICATION_NO_DOCUMENTS_INFORMATIVE_TEXT" = "Var vänlig och öppna en databas för att använda auto-ifyllning!";
 
 /* Noticiation: Autotype failed to find a match for %@ (string placeholder) */
-"AUTOTYPE_OVERLAY_NO_MATCH_FOR_%@" = "Ingen matching för %@!";
+"AUTOTYPE_NOTIFICATION_NO_MATCH_FOR_%@" = "Ingen matching för %@!";
 
 /* Notification: Autotype found a single match. */
 "AUTOTYPE_OVERLAY_SINGLE_MATCH" = "Användaruppgifter hittades!";
@@ -264,7 +264,7 @@
 "FILE_OPEN_ERROR" = "Problem att öppna filen.";
 
 /* General Settings Label */
-"GENERAL_SETTINGS" = "Allmänt";
+"GENERAL_PREFERENCES" = "Allmänt";
 
 /* Group column title */
 "GROUP" = "Grupp";
@@ -572,7 +572,7 @@
 "UNKNOWN_TOOLBAR_ITEM" = "Okänt verktygsradsföremål";
 
 /* Update Settings Label */
-"UPDATE_SETTINGS" = "Uppdateringar";
+"UPDATE_PREFERENCES" = "Uppdateringar";
 
 /* Menu item to toggle display of url column in entry table
    Submenu with options what to do with the URL of an entry

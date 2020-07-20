@@ -38,10 +38,13 @@
                    @(MPActionAddGroup):                         NSStringFromSelector(@selector(createGroup:)),
                    @(MPActionDuplicateEntry):                   NSStringFromSelector(@selector(duplicateEntry:)),
                    @(MPActionDuplicateEntryWithOptions):        NSStringFromSelector(@selector(duplicateEntryWithOptions:)),
+                   @(MPActionDuplicateGroup):                   NSStringFromSelector(@selector(duplicateGroup:)),
                    @(MPActionReverToHistoryEntry):              NSStringFromSelector(@selector(revertToHistoryEntry:)),
                    @(MPActionCopyPassword):                     NSStringFromSelector(@selector(copyPassword:)),
                    @(MPActionCopyURL):                          NSStringFromSelector(@selector(copyURL:)),
                    @(MPActionCopyUsername):                     NSStringFromSelector(@selector(copyUsername:)),
+                   @(MPActionCopyCustomAttribute):              NSStringFromSelector(@selector(copyCustomAttribute:)),
+                   @(MPActionCopyAsReference):                  NSStringFromSelector(@selector(copyAsReference:)),
                    @(MPActionDelete):                           NSStringFromSelector(@selector(delete:)),
                    @(MPActionEditPassword):                     NSStringFromSelector(@selector(editPassword:)),
                    @(MPActionOpenURL):                          NSStringFromSelector(@selector(openURL:)),
@@ -55,6 +58,7 @@
                    @(MPActionToggleQuicklook):                  NSStringFromSelector(@selector(toggleQuicklookPreview:)),
                    @(MPActionShowEntryHistory):                 NSStringFromSelector(@selector(showEntryHistory:)),
                    @(MPActionHideEntryHistory):                 NSStringFromSelector(@selector(hideEntryHistory:)),
+                   @(MPActionShowGroupInOutline):               NSStringFromSelector(@selector(showGroupInOutline:)),
                    @(MPActionPerformAutotypeForSelectedEntry):  NSStringFromSelector(@selector(performAutotypeForEntry:)),
                    @(MPActionRemoveAttachment):                 NSStringFromSelector(@selector(removeAttachment:))
                    };

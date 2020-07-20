@@ -24,7 +24,7 @@
 
 #import "MPDocument.h"
 #import "MPSettingsHelper.h"
-#import "MPPickcharViewController.h"
+#import "MPPickcharsViewController.h"
 #import "MPPickfieldViewController.h"
 #import "MPPickcharsParser.h"
 
@@ -88,7 +88,7 @@
   
   NSPanel *panel = [[NSPanel alloc] initWithContentRect:NSMakeRect(0, 0, 100, 100)
                                               styleMask:NSWindowStyleMaskNonactivatingPanel|NSWindowStyleMaskTitled|NSWindowStyleMaskResizable
-                                                backing:NSBackingStoreRetained
+                                                backing:NSBackingStoreBuffered
                                                   defer:YES];
   panel.level = NSScreenSaverWindowLevel;
   panel.contentViewController = pickFieldViewController;
@@ -99,13 +99,12 @@
   return (response == NSModalResponseOK) ? pickFieldViewController.pickedValue : @"";
 }
 
-- (NSString *)tree:(KPKTree *)tree resolvePickCharsPlaceholderForEntry:(KPKEntry *)entry field:(NSString *)field options:(NSString *)options {
-  NSString *value = [[entry valueForAttributeWithKey:field] kpk_finalValueForEntry:entry];
+- (NSString *)tree:(KPKTree *)tree resolvePickCharsPlaceholderForValue:(NSString *)value options:(NSString *)options {
   if(value.length == 0) {
-    return @""; // error while retrieving source value
+    return @"";
   }
   MPPickcharsParser *parser = [[MPPickcharsParser alloc] initWithOptions:options];
-  MPPickcharViewController *pickCharViewController = [[MPPickcharViewController alloc] init];
+  MPPickcharsViewController *pickCharViewController = [[MPPickcharsViewController alloc] init];
   
   pickCharViewController.sourceValue = value;
   pickCharViewController.minimumCharacterCount = parser.pickCount;
@@ -113,7 +112,7 @@
   
   NSPanel *panel = [[NSPanel alloc] initWithContentRect:NSMakeRect(0, 0, 100, 100)
                                               styleMask:NSWindowStyleMaskNonactivatingPanel|NSWindowStyleMaskTitled|NSWindowStyleMaskResizable
-                                                backing:NSBackingStoreRetained
+                                                backing:NSBackingStoreBuffered
                                                   defer:YES];
   panel.level = NSScreenSaverWindowLevel;
   panel.contentViewController = pickCharViewController;

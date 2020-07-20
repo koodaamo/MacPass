@@ -24,6 +24,8 @@
 
 @implementation NSApplication (MPAdditions)
 
+@dynamic mp_delegate;
+
 - (NSString *)applicationName {
   return [NSBundle.mainBundle.infoDictionary[@"CFBundleName"] copy];
 }
@@ -58,6 +60,19 @@
   task.arguments = @[ @"-c", [NSString stringWithFormat:@"sleep %f; open \"%@\"", seconds, NSBundle.mainBundle.bundlePath] ];
   [task launch];
   [self terminate:nil];
+}
+
+- (MPAppDelegate *)mp_delegate {
+  return (MPAppDelegate *)self.delegate;
+}
+
+- (BOOL)isRunningTests {
+  NSProcessInfo *processInfo = [NSProcessInfo processInfo];
+  NSString *testEnv = processInfo.environment[@"MPIsRunningTests"];
+  if(testEnv) {
+    return [testEnv isEqualToString:@"YES"];
+  }
+  return NO;
 }
 
 @end

@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class KPKTree;
 
 FOUNDATION_EXPORT NSString *const MPPluginUnkownVersion;
+FOUNDATION_EXPORT NSString *const MPPluginDescriptionInfoDictionaryKey;
 
 @interface MPPlugin : NSObject
 
@@ -37,7 +38,9 @@ FOUNDATION_EXPORT NSString *const MPPluginUnkownVersion;
 @property (copy, readonly) NSString *name;
 @property (nonatomic, copy, readonly, nullable) NSString *shortVersionString;
 @property (nonatomic, copy, readonly) NSString *versionString;
+@property (nonatomic, copy, readonly) NSString *localizedDescription;
 @property (nonatomic, strong, readonly) NSBundle *bundle;
+
 
 /**
  If your plugin needs initalization override this method but you have to call [super initWithPluginHost:]
@@ -53,12 +56,33 @@ FOUNDATION_EXPORT NSString *const MPPluginUnkownVersion;
 
 @end
 
+#pragma mark Supported Plugin Protocolls
+
+/*
+ Adopting this protocolls allows for custom settings in the Plugin settings pane.
+ MacPass will load your view controller and place it inside the settings window
+ when a user has selected your plugin in the list
+ */
 @protocol MPPluginSettings <NSObject>
 
 @required
 @property (strong, readonly) NSViewController *settingsViewController;
 
 @end
+
+/*
+ Adopt this protocoll if you plugin can extract window title information for a set of applications
+ This way, MacPass might yield better results for autotype. Beware that his might break interoparbility
+ */
+@protocol MPAutotypeWindowTitleResolverPlugin <NSObject>
+@required
+
+- (BOOL)acceptsRunningApplication:(NSRunningApplication *)runningApplication;
+- (NSString *)windowTitleForRunningApplication:(NSRunningApplication *)runningApplication;
+@end
+
+
+#pragma mark Proposed Plugin Protocolls
 
 /*
  Adopt this protocoll if your plugin supports actions on entries.
@@ -111,12 +135,50 @@ FOUNDATION_EXPORT NSString *const MPPluginUnkownVersion;
  This will get called when the open panel is closed by the user.
  You should retrieve any results from the panel and act accordingly.
  
+ If you need custom UI in the process, you can show them here.
+ For example, if a CVS import might need user input on how to handle the parsed files this is the place to show it.
+
  @param panel The open panel used for selecting what file(s) to import
- @param response The response for of the user for running the panel
- @return The tree constructed from the selected input file(s)
+ @return The KPKTree constructed from the selected input file(s)
  */
-- (KPKTree *)treeForRunningOpenPanel:(NSOpenPanel *)panel withResponse:(NSModalResponse)response;
+- (nullable KPKTree *)treeForRunningOpenPanel:(NSOpenPanel *)panel;
 @end
+
+@protocol MPExportPlugin <NSObject>
+
+@required
+/**
+ Called by the host to update a menu item for exporting.
+ You are supposed to update the title to something meaningfull.
+ Target and action will get set by host, so do not rely on them
+ 
+ @param item MenuItem that will be used to export via the plugin
+ */
+- (void)prepareExportMenuItem:(NSMenuItem *)item;
+
+/**
+ Called by the host when an export is about to happen.
+ Update the panel to work for all the files and formats you can export
+
+ @param panel The panel used to select the export destination
+ */
+- (void)prepareSavePanel:(NSSavePanel *)panel;
+/**
+ This will get called when the save panel is closed by the user.
+ You should retrieve any results from the panel and act accordingly.
+ 
+ If you need custom UI in the process, you can show them here.
+ For example, if a CSV export might need user input to configure its output this is the place to show it.
+ 
+ @param tree The current tree to be exported
+ @param panel The save panel that was used to specify the export destination
+ */
+- (void)exportTree:(KPKTree *)tree forRunningSavePanel:(NSSavePanel *)panel;
+
+@end
+
+
+#pragma mark Deprecated
 
 @interface MPPlugin (Deprecated)
 

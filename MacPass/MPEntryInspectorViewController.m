@@ -58,6 +58,10 @@ typedef NS_ENUM(NSUInteger, MPEntryTab) {
   MPEntryTabAutotype
 };
 
+@interface NSObject (MPAppKitPrivateAPI)
+- (void)_searchWithGoogleFromMenu:(id)obj;
+@end
+
 @interface MPEntryInspectorViewController () {
 @private
   NSArrayController *_attachmentsController;
@@ -141,12 +145,12 @@ typedef NS_ENUM(NSUInteger, MPEntryTab) {
   
   [self.generalView addSubview:customFieldTableView];
   
-  NSDictionary *dict = NSDictionaryOfVariableBindings(customFieldTableView, _tagsTokenField, _addCustomFieldButton);
+  NSDictionary *dict = NSDictionaryOfVariableBindings(customFieldTableView, _fieldsStackView, _addCustomFieldButton);
   [self.generalView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-16-[customFieldTableView]-16-|"
                                                                            options:0
                                                                            metrics:nil
                                                                              views:dict]];
-  [self.generalView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[_tagsTokenField]-[customFieldTableView]-[_addCustomFieldButton]"
+  [self.generalView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[_fieldsStackView]-[customFieldTableView]-[_addCustomFieldButton]"
                                                                            options:0
                                                                            metrics:nil
                                                                              views:dict]];
@@ -200,15 +204,16 @@ typedef NS_ENUM(NSUInteger, MPEntryTab) {
   [self.observer didChangeModelProperty];
 }
 - (void)removeCustomField:(id)sender {
-  NSUInteger index = [sender tag];
-  KPKAttribute *attribute = self.representedEntry.customAttributes[index];
+  NSInteger rowIndex = [self.customFieldsTableView rowForView:sender];
+  NSAssert(rowIndex >= 0 && rowIndex < self.representedEntry.customAttributes.count, @"Invalid custom attribute index.");
+  KPKAttribute *attribute = self.representedEntry.customAttributes[rowIndex];
   [self.observer willChangeModelProperty];
   [self.representedEntry removeCustomAttribute:attribute];
   [self.observer didChangeModelProperty];
 }
 
 - (void)saveAttachment:(id)sender {
-  NSInteger row = [self.attachmentTableView selectedRow];
+  NSInteger row = self.attachmentTableView.selectedRow;
   if(row < 0) {
     return; // No selection
   }
@@ -218,7 +223,7 @@ typedef NS_ENUM(NSUInteger, MPEntryTab) {
   savePanel.nameFieldStringValue = binary.name;
   
   [savePanel beginSheetModalForWindow:self.windowController.window completionHandler:^(NSInteger result) {
-    if(result == NSFileHandlingPanelOKButton) {
+    if(result == NSModalResponseOK) {
       NSError *error;
       BOOL sucess = [binary saveToLocation:savePanel.URL error:&error];
       if(!sucess && error) {
@@ -236,7 +241,7 @@ typedef NS_ENUM(NSUInteger, MPEntryTab) {
   openPanel.prompt = NSLocalizedString(@"OPEN_BUTTON_ADD_ATTACHMENT_OPEN_PANEL", "Open button in the open panel to add attachments to an entry");
   openPanel.message = NSLocalizedString(@"MESSAGE_ADD_ATTACHMENT_OPEN_PANEL", "Message in the open panel to add attachments to an entry");
   [openPanel beginSheetModalForWindow:self.windowController.window completionHandler:^(NSInteger result) {
-    if(result == NSFileHandlingPanelOKButton) {
+    if(result == NSModalResponseOK) {
       for (NSURL *attachmentURL in openPanel.URLs) {
         KPKBinary *binary = [[KPKBinary alloc] initWithContentsOfURL:attachmentURL];
         [self.observer willChangeModelProperty];
@@ -296,7 +301,7 @@ typedef NS_ENUM(NSUInteger, MPEntryTab) {
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
   switch([MPActionHelper typeForAction:menuItem.action]) {
     case MPActionToggleQuicklook: {
-      BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:kMPSettingsKeyEnableQuicklookPreview];
+      BOOL enabled = [NSUserDefaults.standardUserDefaults boolForKey:kMPSettingsKeyEnableQuicklookPreview];
       return enabled ? [self acceptsPreviewPanelControl:nil] : NO;
     case MPActionRemoveAttachment:
       return !self.representedEntry.isHistory;
@@ -322,16 +327,16 @@ typedef NS_ENUM(NSUInteger, MPEntryTab) {
 
 - (void)endPreviewPanelControl:(QLPreviewPanel *)panel {
   MPTemporaryFileStorage *storage = (MPTemporaryFileStorage *)panel.dataSource;
-  [[MPTemporaryFileStorageCenter defaultCenter] unregisterStorage:storage];
+  [MPTemporaryFileStorageCenter.defaultCenter unregisterStorage:storage];
 }
 
 - (void)_updatePreviewItemForPanel:(QLPreviewPanel *)panel {
-  NSInteger row = [self.attachmentTableView selectedRow];
+  NSInteger row = self.attachmentTableView.selectedRow;
   NSAssert(row > -1, @"Row needs to be selected");
   KPKBinary *binary = self.representedEntry.binaries[row];
   MPTemporaryFileStorage *oldStorage = (MPTemporaryFileStorage *)panel.dataSource;
-  [[MPTemporaryFileStorageCenter defaultCenter] unregisterStorage:oldStorage];
-  panel.dataSource = [[MPTemporaryFileStorageCenter defaultCenter] storageForBinary:binary];
+  [MPTemporaryFileStorageCenter.defaultCenter unregisterStorage:oldStorage];
+  panel.dataSource = [MPTemporaryFileStorageCenter.defaultCenter storageForBinary:binary];
 }
 
 #pragma mark -
@@ -386,7 +391,7 @@ typedef NS_ENUM(NSUInteger, MPEntryTab) {
   if([self.presentedViewControllers containsObject:viewController]) {
     return;
   }
-  [self presentViewController:viewController asPopoverRelativeToRect:NSZeroRect ofView:view preferredEdge:edge behavior:NSPopoverBehaviorTransient];
+  [self presentViewController:viewController asPopoverRelativeToRect:NSZeroRect ofView:view preferredEdge:edge behavior:NSPopoverBehaviorSemitransient];
 }
 
 #pragma mark -
@@ -556,6 +561,7 @@ typedef NS_ENUM(NSUInteger, MPEntryTab) {
   NSMenu *customFieldMenu = [[NSMenu alloc] initWithTitle:NSLocalizedString(@"ADD_CUSTOM_FIELD_CONTEXT_MENU", @"Menu displayed for adding special custom keys")];
   customFieldMenu.delegate = _addCustomFieldContextMenuDelegate;
   self.addCustomFieldButton.contextMenu = customFieldMenu;
+  [self.addCustomFieldButton setEnabled:NO forSegment:MPContextButtonSegmentContextButton];
 }
 
 #pragma mark -
@@ -585,12 +591,20 @@ typedef NS_ENUM(NSUInteger, MPEntryTab) {
   return menu;
 }
 
+/*- (NSArray<NSString *> *)control:(NSControl *)control textView:(NSTextView *)textView completions:(NSArray<NSString *> *)words forPartialWordRange:(NSRange)charRange indexOfSelectedItem:(NSInteger *)index {
+  return @[ @"{USERNAME}", @"{PASSWORD}", @"{URL}", @"{TITLE}" ];
+}
+*/
+
 - (BOOL)textField:(NSTextField *)textField textView:(NSTextView *)textView performAction:(SEL)action {
   if(action == @selector(copy:)) {
     MPPasteboardOverlayInfoType info = MPPasteboardOverlayInfoCustom;
-    NSString *value = textField.stringValue;
+    NSMutableString *selectedValue = [[NSMutableString alloc] init];
+    for(NSValue *rangeValue in textView.selectedRanges) {
+      [selectedValue appendString:[textView.string substringWithRange:rangeValue.rangeValue]];
+    }
     NSString *name = @"";
-    if(nil == value) {
+    if(selectedValue.length == 0) {
       return YES;
     }
     if(textField == self.usernameTextField) {
@@ -614,7 +628,7 @@ typedef NS_ENUM(NSUInteger, MPEntryTab) {
         name = [_customFieldsController.arrangedObjects[index] key];
       }
     }
-    [MPPasteBoardController.defaultController copyObjects:@[value] overlayInfo:info name:name atView:self.view];
+    [MPPasteBoardController.defaultController copyObject:selectedValue overlayInfo:info name:name atView:self.view];
     return NO;
   }
   return YES;

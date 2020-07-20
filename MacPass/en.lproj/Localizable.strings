@@ -25,26 +25,41 @@
 /* Toolbar item with action menu */
 "ACTION" = "Action";
 
+/* Menu item title for adding an hmacotp config attribute */
+"ADD_CUSTOM_ATTRIBUTE_HMACOTP_CONFIG" = "Add HMACOTP Configuration";
+
+/* Menu item title for adding an hmacotp seed attribute */
+"ADD_CUSTOM_ATTRIBUTE_HMACOTP_SEED" = "Add HMACOTP Seed";
+
 /* Menu displayed for adding special custom keys */
 "ADD_CUSTOM_FIELD_CONTEXT_MENU" = "Add Custom Field Menu";
 
 /* Action to add an entry via template */
 "ADD_TREMPLATE_ENTRY" = "Create Template Entry";
 
-/* Button in dialog to leave autotype disabled and continiue! */
-"ALERT_AUTOTYPE_MISSING_ACCESSIBILTY_PERMISSIONS_BUTTON_OK" = "Keep Autotype disabled.";
+/* Allow the download of the plugin repository file */
+"ALERT_ASK_FOR_PLUGIN_REPOSITORY_ALLOW_DOWNLOAD" = "Update definitions online";
 
-/* Button in dialog to open accessibilty preferences pane! */
-"ALERT_AUTOTYPE_MISSING_ACCESSIBILTY_PERMISSIONS_BUTTON_OPEN_PREFERENCES" = "Open Accessibilty Preferences…";
+/* Informative text displayed on the alert that shows up when MacPass asks for permssion to download the plugin repository JSON file */
+"ALERT_ASK_FOR_PLUGIN_REPOSITORY_CONNECTION_PERMISSION_INFORMATIVE_TEXT" = "The plugin defintions are hosted online at https://macpassapp.org. MacPass would like to download those files to ensure the data is up to date.";
 
-/* Alert informative text displayed when Autotype performs self check and lacks accessibilty permissions */
-"ALERT_AUTOTYPE_MISSING_ACCESSIBILTY_PERMISSIONS_INFORMATIVE_TEXT" = "The system prevents MacPass from sending key strokes to other Applications. To enable Autotype please grant MacPass Accessibilty rights in the privacy preferences.";
+/* Message displayed on the alert that asks for permission to download the plugin repository JSON file */
+"ALERT_ASK_FOR_PLUGIN_REPOSITORY_CONNECTION_PERMISSION_MESSAGE" = "MacPass would like to check for updates of plugin definitions online";
 
-/* Alert message displayed when Autotype performs self check and lacks accessibilty permissions */
-"ALERT_AUTOTYPE_MISSING_ACCESSIBILTY_PERMISSIONS_MESSAGE_TEXT" = "MacPass cannot perform Autotype";
+/* Disallow the download of the plugin repository file */
+"ALERT_ASK_FOR_PLUGIN_REPOSITORY_DISALLOW_DOWNLOAD" = "Do not update defintions";
 
-/* Checkbox in dialog to set the selection as default file change strategy! */
-"ALERT_AUTOTYPE_MISSING_ACCESSIBILTY_PERMISSIONS_SUPPRESS_WARNING" = "Do not show this warning again.";
+/* Button in dialog to leave plugin ds disabled and continiue! */
+"ALERT_INCOMPATIBLE_PLUGINS_ENCOUNTERED_BUTTON_OK" = "OK";
+
+/* Button in dialog to open plugin preferences pane! */
+"ALERT_INCOMPATIBLE_PLUGINS_ENCOUNTERED_BUTTON_OPEN_PREFERENCES" = "Show Plugin Preferences…";
+
+/* Informative text of the alert displayed when plugins where disabled due to incompatibilty */
+"ALERT_INCOMPATIBLE_PLUGINS_ENCOUNTERED_INFORMATIVE_TEXT" = "Some plugins were disabled, because they are not compatible with this version of MacPass. Open the plugin settings for details.";
+
+/* Message text of the alert displayed when plugins where disabled due to incompatibilty */
+"ALERT_INCOMPATIBLE_PLUGINS_ENCOUNTERED_MESSAGE" = "Incompatible Plugins detected.";
 
 /* Alert informative text when plugins or their settings change and require a restart */
 "ALERT_INFORMATIVE_TEXT_PLUGINS_CHANGED_SUGGEST_RESTART" = "Changes to plugins and global plugin settings take only effect after restart. Restart MacPass now?";
@@ -70,7 +85,7 @@
 /* Alert message text to ask the user if he really want to uninstall the plugin. Include %@ placeholder for plugin name */
 "ALERT_MESSAGE_TEXT_REALLY_UNINSTALL_PLUGIN_%@" = "Should the Plugin %@ really be uninstalled?";
 
-/* Infromative text of the disabled updates alert! */
+/* Informative text of the disabled updates alert! */
 "ALERT_UPDATES_DISABLED_INFORMATIVE_TEXT_%@!" = "Updates for this build of %@ are disabled!";
 
 /* Message text for disabled updates alert! */
@@ -86,6 +101,12 @@
 /* Menu item for automatic trash creation */
 "AUTOCREATE_TRASH_FOLDER" = "Create Automatically";
 
+/* Message text in the autotype selection window. Placeholder is %1 - windowTitle */
+"AUTOTYPE_CANDIDATE_SELECTION_WINDOW_MESSAGE_%@" = "There are multiple matches for the current window: %@. Please select which match should be used.";
+
+/* Window title for the stand-alone password creator window */
+"AUTOTYPE_DOCTOR_RESULTS_WINDOW_TITLE" = "Autotype Doctor";
+
 /* Inherit autotype settings menu item */
 "AUTOTYPE_INHERIT" = "Inherit Autotype Settings";
 
@@ -95,20 +116,44 @@
 /* Disable autotype menu item */
 "AUTOTYPE_NO" = "Disable Autotype";
 
-/* Notification: Autotype failed, MacPass has no permission to send key strokes */
-"AUTOTYPE_NOTIFICATION_MACPASS_HAS_NO_ACCESSIBILTY_PERMISSIONS" = "Autotype disabled because of missing accessibilty access.";
+/* Notification: Autotype failed, MacPass has not enough permissions to perform autotype */
+"AUTOTYPE_NOTIFICATION_MACPASS_IS_MISSING_PERMISSIONS" = "MacPass does not have all necessary permissions to perform Autotype.";
+
+/* Notification: Title for autotype feedback */
+"AUTOTYPE_NOTIFICATION_MATCH_TITLE" = "Autotype";
 
 /* Notification: Autotype failed, no documents are open */
-"AUTOTYPE_OVERLAY_NO_DOCUMENTS" = "Please open a database file to use Global Autotype!";
+"AUTOTYPE_NOTIFICATION_NO_DOCUMENTS_INFORMATIVE_TEXT" = "Please open a database file to use Global Autotype!";
+
+/* Notification: Title for autotype feedback */
+"AUTOTYPE_NOTIFICATION_NO_DOCUMENTS_TITLE" = "No database is open!";
 
 /* Noticiation: Autotype failed to find a match for %@ (string placeholder) */
-"AUTOTYPE_OVERLAY_NO_MATCH_FOR_%@" = "No Match for %@!";
+"AUTOTYPE_NOTIFICATION_NO_MATCH_FOR_%@" = "No Match for %@!";
+
+/* Title for autotype feedback on missing permissions */
+"AUTOTYPE_NOTIFICATION_PERMISSIONS_MISSING_TITLE" = "Missing permissions";
 
 /* Notification: Autotype found a single match for %@ (string placeholder). */
-"AUTOTYPE_OVERLAY_SINGLE_MATCH_FOR_%@" = "Found Match for %@!";
+"AUTOTYPE_NOTIFICATION_SINGLE_MATCH_FOR_%@" = "Found Match for %@!";
+
+/* Title for the notification when the Autotype operation timed out */
+"AUTOTYPE_NOTIFICATION_TIMED_OUT_TITLE" = "Autotype timed out!";
+
+/* Status label when no issue were found in accessibilty */
+"AUTOTYPE_STATUS_ACCESSIBILTY_PERMISSIONS_OK" = "MacPass has permission to control your computer (Accessibility)";
+
+/* Status MacPass has no accessibilty permissions */
+"AUTOTYPE_STATUS_NO_ACCESSIBILTY_PERMISSIONS" = "MacPass has no permission to control your computer (Accessibility)";
+
+/* Status MacPass has no screen recording permissions */
+"AUTOTYPE_STATUS_NO_SCREEN_RECORDING_PERMISSIONS" = "MacPass has no permission to record your screen";
+
+/* Status label when no issue were found in screen recording permissions */
+"AUTOTYPE_STATUS_SCREEN_RECORDING_PERMISSIONS_OK" = "MacPass has permission to record your screen";
 
 /* Notficication: Autotype timed out */
-"AUTOTYPE_TIMED_OUT" = "Autotype timed out.";
+"AUTOTYPE_TIMED_OUT" = "You did start Autotype too long ago. MacPass did not perform it anymore to prevent any wrong input!";
 
 /* Enable autotype menu item */
 "AUTOTYPE_YES" = "Enable Autotype";
@@ -129,6 +174,9 @@
 /* Menu item in the database outline context menu to change the trash group */
 "CHANGE_TRASH_GROUP" = "Change Trash Group";
 
+/* Button title in the key file selection dialog for selecting a key */
+"CHOOSE_FILE_BUTTON_TITLE" = "Open";
+
 /* Clear Autotype Button */
 "CLEAR_AUTOTYPE" = "Clear Autotype";
 
@@ -141,14 +189,35 @@
 /* Field name that was copied to the pasteboard */
 "COPIED_FIELD_%@" = "Copied %@";
 
+/* Context menu that copies reference to note */
+"COPIED_NOTES_REFERENCE" = "Reference to notes copied!";
+
 /* Password was copied to the pasteboard */
 "COPIED_PASSWORD" = "Password copied!";
+
+/* Context menu that copies reference to password */
+"COPIED_PASSWORD_REFERENCE" = "Reference to password copied!";
+
+/* Context menu that copies reference to title */
+"COPIED_TITLE_REFERENCE" = "Reference to title copied!";
 
 /* URL was copied to the pasteboard */
 "COPIED_URL" = "URL copied!";
 
+/* Context menu that copies reference to URL */
+"COPIED_URL_REFERENCE" = "Reference to URL copied!";
+
 /* Username was copied to the pasteboard */
 "COPIED_USERNAME" = "Username copied!";
+
+/* Context menu that copies reference to username */
+"COPIED_USERNAME_REFERENCE" = "Reference to username copied!";
+
+/* Submenu to copy attributes as reference */
+"COPY_AS_REFERENCE" = "Copy Reference To…";
+
+/* Context menu sub-menu to copy attributes as reference */
+"COPY_AS_REFERENCE_MENU" = "Copy as Reference menu";
 
 /* Submenu to Copy custom fields */
 "COPY_CUSTOM_FIELDS" = "Copy Custom Fields";
@@ -166,18 +235,33 @@
 /* Action title for copying a group via drag and drop */
 "COPY_GROUP" = "Copy Group";
 
+/* Context menu that copies reference to note */
+"COPY_NOTES_REFERENCE" = "Notes";
+
 /* Menu item to copy the password of an entry
    Toolbar item copy password */
 "COPY_PASSWORD" = "Copy Password";
 
+/* Context menu that copies reference to password */
+"COPY_PASSWORD_REFERENCE" = "Password";
+
+/* Context menu that copies reference to title */
+"COPY_TITLE_REFERENCE" = "Title";
+
 /* Menu item to copy the URL of an entry */
 "COPY_URL" = "Copy URL";
+
+/* Context menu that copies reference to URL */
+"COPY_URL_REFERENCE" = "URL";
 
 /* Menu item to copy the username of an entry
    Toolbar item copy username */
 "COPY_USERNAME" = "Copy Username";
 
-/* Curstom attribute reference item */
+/* Context menu that copies reference to username */
+"COPY_USERNAME_REFERENCE" = "Username";
+
+/* Custom attribute reference item */
 "CUSTOM_ATTRIBUTE" = "Custom Attribute";
 
 /* Title for menu for custom search filters */
@@ -232,13 +316,19 @@
 "DRAG_GROUP" = "Drag Group";
 
 /* Action name for duplicating entries */
-"DUPLICATE_ENTRIES_%ld" = "Duplicate Entries %ld";
+"DUPLICATE_ENTRIES_ACTION_NAME" = "Duplicate Entries";
 
 /* Menu item to directly diplicate an entry */
 "DUPLICATE_ENTRY" = "Duplicate Entry";
 
 /* Menu item to duplicate an entry with options how to duplicate. Will present a dialog. */
 "DUPLICATE_ENTRY_WITH_OPTIONS" = "Duplicate Entry…";
+
+/* Menu item to directly diplicate a group */
+"DUPLICATE_GROUP" = "Duplicate Group";
+
+/* Action name for duplicating groups */
+"DUPLICATE_GROUPS_ACTION_NAME" = "Duplicate Group";
 
 /* Menu item in the database outline context menu to change the template group
    Menu item on the add entry context menu to edit template groups */
@@ -262,11 +352,20 @@
 /* Group row for entry attributes */
 "ENTRY_DEFAULT_ATTRIBUTES" = "Default Attributes";
 
+/* Tooltip displayed on the index header cell */
+"ENTRY_INDEX_COLUMN_TOOLTIP" = "Column to sort by user defined order";
+
 /* Keyfile not valid */
 "ERROR_INVALID_KEYFILE" = "Keyfile is invalid!";
 
 /* Error description given when adding an invalid plugin */
 "ERROR_INVALID_PLUGIN" = "Invalid plugin";
+
+/* Error description for missing accessibility permissions */
+"ERROR_NO_ACCESSIBILITY_PERMISSIONS" = "MacPass has no permission to control your computer (Accessibility)";
+
+/* Error description for missing screen recording permissions */
+"ERROR_NO_PERMISSION_TO_RECORD_SCREEN" = "MacPass has no permission to record your screen";
 
 /* Passwords do not match */
 "ERROR_PASSWORD_MISSMATCH" = "Passwords do not match!";
@@ -282,6 +381,15 @@
 
 /* The master key was changed by an external program! */
 "EXTERN_CHANGE_OF_MASTERKEY" = "Master key was changed by another program";
+
+/* Direct download */
+"FAVICON_DOWNLOAD_METHOD_DIRECT" = "Direct download";
+
+/* DuckDuckGo */
+"FAVICON_DOWNLOAD_METHOD_DUCKDUCKGO" = "DuckDuckGo";
+
+/* Google */
+"FAVICON_DOWNLOAD_METHOD_GOOGLE" = "Google";
 
 /* External file change strategy option: ask what to do */
 "FILE_CHANGE_STRATEGY_ASK" = "Ask";
@@ -306,7 +414,7 @@
 "FILE_OPEN_ERROR" = "Error opening file.";
 
 /* General Settings Label */
-"GENERAL_SETTINGS" = "General";
+"GENERAL_PREFERENCES" = "General";
 
 /* Group column title */
 "GROUP" = "Group";
@@ -376,7 +484,7 @@
 "NEW_ENTRY" = "New Entry";
 
 /* Submenu to add an entry via template */
-"NEW_ENTRY_WITH_TEMPLATE_%@" = "Create Entry with Template %@";
+"NEW_ENTRY_WITH_TEMPLATE_%@" = "from %@";
 
 /* Action name for a newly created group
    Menu item to create a new group
@@ -429,16 +537,13 @@
 /* Action button in Notification to open a document */
 "OPEN_DOCUMENT" = "Open Document";
 
-/* Action button in Notification to show the Accessibilty preferences */
-"OPEN_PREFERENCES" = "Open Accessiblity Preferences…";
-
 /* Menu item to open the URL with the default application */
 "OPEN_URL" = "Open URL";
 
 /* Select Browser */
 "OTHER_BROWSER" = "Select Browser…";
 
-/* No comment provided by engineer. */
+/* Value field for reference lookup */
 "OUTPUT_VALUE" = "Output Value";
 
 /* Menu item to toggle display of password column in entry table
@@ -482,6 +587,18 @@
 /* Window displayed to the user to pick an amout of characters */
 "PICKFIELD_WINDOW_TITLE" = "Field Picker";
 
+/* Label for the button when a download is in progress! */
+"PLUGIN_BROWSER_ACTION_DOWNLOAD_IN_PROGRESS" = "Downloading…";
+
+/* Label for the button when a download did not succeed */
+"PLUGIN_BROWSER_ACTION_RETRY_FAILED_DOWNLOAD" = "Failed. Re-Download";
+
+/* Label for the button to show a downloaded file */
+"PLUGIN_BROWSER_ACTION_SHOW_DOWNLOADED_FILE" = "Show in Finder…";
+
+/* Button to download the Plugin */
+"PLUGIN_BROWSER_DOWNLOAD_PLUGIN_BUTTON" = "Download";
+
 /* Status for an up-to-date plugin in the plugin browser */
 "PLUGIN_BROWSER_LATEST_VERSION_INSTALLED" = "Latest version installed";
 
@@ -506,7 +623,7 @@
 /* Error for a plugin that was not signed properly */
 "PLUGIN_ERROR_UNSECURE_PLUGIN" = "Plugin is not properly signed";
 
-/* Plugin specifies the wrong principla class! */
+/* Plugin specifies the wrong principal class! */
 "PLUGIN_ERROR_WRONG_PRINCIPAL_CLASS" = "Unexpected principal class in plugin";
 
 /* name for disabled unloaded plugin */
@@ -536,10 +653,13 @@
 /* Message text for the recommend password change alert */
 "RECOMMEND_PASSWORD_CHANGE_ALERT_TITLE" = "Please change the database password!";
 
+/* Updated at text when the local plugin defintino is used */
+"REPOSITORY_UPDATED_AT_LOCAL" = "Never (using bundled version)";
+
 /* Restart */
 "RESTART" = "Restart";
 
-/* Action to restore and Entry to a previous state of it's history */
+/* Action to restore an Entry to a previous state of its history */
 "RESTORE_HISTORY_ENTRY" = "Restore History Entry";
 
 /* Menu item to save the selected attached file.
@@ -558,6 +678,9 @@
 /* Search option: Find duplicate passwords */
 "SEARCH_DUPLICATE_PASSWORDS" = "Duplicate Passwords";
 
+/* Placeholder string displayed in the search field in the toolbar */
+"SEARCH_EVERYWHERE" = "Search Everywhere";
+
 /* Search option: Find expired entries */
 "SEARCH_EXPIRED_ENTRIES" = "Expired";
 
@@ -567,7 +690,7 @@
 /* Disable search menu item */
 "SEARCH_NO" = "Exclude from Search";
 
-/* No comment provided by engineer. */
+/* Search field for references lookup */
 "SEARCH_VALUE" = "Search Value";
 
 /* Enable search menu item */
@@ -591,6 +714,12 @@
 /* Checkbox in dialog to set the selection as default file change strategy! */
 "SET_AS_DEFAULT_FILE_CHANGE_STRATEGY" = "Use this method as default. You can change this at any time in the preferences.";
 
+/* Action button in Notification to show the Autotype Doctor */
+"SHOW_AUTOTYPE_DOCTOR" = "Show Autotype Doctor";
+
+/* Menu item to show the entries group in the outline view */
+"SHOW_GROUP_IN_OUTLINE" = "Show Group in Outline";
+
 /* Menu item to show the history of the selected entry
    Toolbar item to toggle history display */
 "SHOW_HISTORY" = "Show History";
@@ -606,6 +735,42 @@
 
 /* Toolbar item to perform autotype */
 "TOOLBAR_PERFORM_AUTOTYPE_FOR_ENTRY" = "Autotype";
+
+/* Touchbar button label for choosing the keyfile */
+"TOUCHBAR_CHOOSE_KEYFILE" = "Choose Keyfile";
+
+/* Touchbar button label for copying the password */
+"TOUCHBAR_COPY_PASSWORD" = "Copy Password";
+
+/* Touchbar button label for copying the username */
+"TOUCHBAR_COPY_USERNAME" = "Copy Username";
+
+/* Touchbar button label for deleting elements */
+"TOUCHBAR_DELETE" = "Delete";
+
+/* Touchbar button label for opening the popover to edit */
+"TOUCHBAR_EDIT" = "Edit";
+
+/* Touchbar button label for locking the database */
+"TOUCHBAR_LOCK_DATABASE" = "Lock Database";
+
+/* Touchbar button label for creating a new item */
+"TOUCHBAR_NEW_ENTRY" = "New Entry";
+
+/* Touchbar button label for creating a new group */
+"TOUCHBAR_NEW_GROUP" = "New Group";
+
+/* Touchbar button label for performing autotype */
+"TOUCHBAR_PERFORM_AUTOTYPE" = "Perform Autotype";
+
+/* Touchbar button label for searching the database */
+"TOUCHBAR_SEARCH" = "Search Database";
+
+/* Touchbar button label for showing the password */
+"TOUCHBAR_SHOW_PASSWORD" = "Show Password";
+
+/* Touchbar button label for unlocking the database */
+"TOUCHBAR_UNLOCK_DATABASE" = "Unlock Database";
 
 /* Move Entry to Trash */
 "TRASH_ENTRY" = "Trash Entry";
@@ -629,7 +794,7 @@
 "UNKNOWN_TOOLBAR_ITEM" = "Unknown Toolbar Item";
 
 /* Update Settings Label */
-"UPDATE_SETTINGS" = "Updates";
+"UPDATE_PREFERENCES" = "Updates";
 
 /* Menu item to toggle display of url column in entry table
    Submenu with options what to do with the URL of an entry
@@ -645,6 +810,12 @@
 /* Displayed name when uuid field was copied
    UUID reference item */
 "UUID" = "UUID";
+
+/* Error message displayed when the current database file is also set as the key file */
+"WARNING_CURRENT_DATABASE_FILE_SELECTED_AS_KEY_FILE" = "You cannot select the current database file as the key file.";
+
+/* Error message displayed when a keepass database file is set as the key file */
+"WARNING_DATABASE_FILE_SELECTED_AS_KEY_FILE" = "You should not use another database file as a key file since it might change and prevent you from reopening the current file.";
 
 /* No Key or Password */
 "WARNING_NO_PASSWORD_OR_KEYFILE" = "No password or keyfile supplied!";
@@ -667,9 +838,11 @@
 /* No comment provided by engineer. */
 "WARNING_ON_SAVE_NO_PASSWORD_OR_KEY_SET_SUGGESTION" = "Please set a password and/or keyfile for this database. Aborting this will undo all changes and lock the document";
 
+/* Text displayed when no recent documents can be displayed in */
+"WELCOME_WINDOW_NO_RECENT_DOCUMENTS" = "No recent Documents";
+
 /* Label for the workflow settings tab */
 "WORKFLOW_SETTINGS" = "Workflow";
 
 /* Yesterday */
 "YESTERDAY" = "Yesterday";
-
