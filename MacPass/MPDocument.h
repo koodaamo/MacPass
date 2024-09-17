@@ -39,7 +39,7 @@ FOUNDATION_EXPORT NSString *const MPDocumentDidAddGroupNotification;
  *  The userInfo dictionary contains the added entry at MPDocumentEntryKey
  */
 FOUNDATION_EXPORT NSString *const MPDocumentDidAddEntryNotification;
-FOUNDATION_EXPORT NSString *const MPDocumentDidRevertNotifiation;
+FOUNDATION_EXPORT NSString *const MPDocumentDidRevertNotification;
 
 FOUNDATION_EXPORT NSString *const MPDocumentDidLockDatabaseNotification;
 FOUNDATION_EXPORT NSString *const MPDocumentDidUnlockDatabaseNotification;
@@ -108,13 +108,13 @@ FOUNDATION_EXPORT NSString *const MPDocumentGroupKey;
 /**
  *  Decrypts the database with the given password and keyfile
  *
- *  @param password   The password to unlock the db with, can be nil. This is not the same as an empty string @""
- *  @param keyFileURL URL for the keyfile to use, can be nil
+ *  @param compositeKey   The CompositeKey to unlock the db.
+ *  @param keyFileURL URL for the keyfile that was used to create the compositeKey. Can be nil.
  *  @param error  Pointer to an NSError pointer of error reporting.
  *
  *  @return YES if the document was unlocked sucessfully, NO otherwise. Consult the error object for details
  */
-- (BOOL)unlockWithPassword:(NSString *)password keyFileURL:(NSURL *)keyFileURL error:(NSError *__autoreleasing*)error;
+- (BOOL)unlockWithPassword:(KPKCompositeKey *)compositeKey keyFileURL:(NSURL *)keyFileURL error:(NSError *__autoreleasing*)error;
 /**
  *  Changes the password of the database. Some sanity checks are applied and the change is aborted if the new values aren't valid
  *
@@ -259,7 +259,7 @@ FOUNDATION_EXTERN NSString *const MPDocumentDidChangeSearchResults;
 FOUNDATION_EXTERN NSString *const kMPDocumentSearchResultsKey;
 
 @interface MPDocument (Search)
-- (IBAction)perfromCustomSearch:(id)sender;
+- (IBAction)performCustomSearch:(id)sender;
 - (void)enterSearchWithContext:(MPEntrySearchContext *)context;
 
 /* Should be called by the NSSearchTextField to update the search string */

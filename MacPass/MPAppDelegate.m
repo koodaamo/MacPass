@@ -67,6 +67,7 @@ typedef NS_OPTIONS(NSInteger, MPAppStartupState) {
 }
 
 @property (strong) NSWindow *welcomeWindow;
+@property (strong) SPUUpdater *updater;
 @property (strong) IBOutlet NSWindow *passwordCreatorWindow;
 @property (strong, nonatomic) MPPreferencesWindowController *preferencesController;
 @property (strong, nonatomic) MPPasswordCreatorViewController *passwordCreatorController;
@@ -92,6 +93,7 @@ typedef NS_OPTIONS(NSInteger, MPAppStartupState) {
     _userNotificationCenterDelegate = [[MPUserNotificationCenterDelegate alloc] init];
     self.itemActionMenuDelegate = [[MPEntryContextMenuDelegate alloc] init];
     _shouldOpenFile = NO;
+    _isTerminating = NO;
     self.startupState = MPAppStartupStateNone;
     
     [NSNotificationCenter.defaultCenter addObserver:self
@@ -185,6 +187,7 @@ typedef NS_OPTIONS(NSInteger, MPAppStartupState) {
 }
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
+  _isTerminating = YES;
   [self hideWelcomeWindow];
   if(MPTemporaryFileStorageCenter.defaultCenter.hasPendingStorages) {
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -215,11 +218,13 @@ typedef NS_OPTIONS(NSInteger, MPAppStartupState) {
   [MPPluginHost sharedHost];
 #if !defined(DEBUG) && !defined(NO_SPARKLE)
   /* Disable updates if in debug or nosparkle  */
-  [SUUpdater sharedUpdater];
+  SPUStandardUserDriver *userDriver = [[SPUStandardUserDriver alloc] initWithHostBundle:NSBundle.mainBundle delegate:nil];
+  self.updater = [[SPUUpdater alloc] initWithHostBundle:NSBundle.mainBundle applicationBundle:NSBundle.mainBundle userDriver:userDriver delegate:nil];
+  [self.updater startUpdater:nil];
 #endif
   self.startupState |= MPAppStartupStateFinishedLaunch;
   // Here we just opt-in for allowing our bar to be customized throughout the app.
-    NSApplication.sharedApplication.automaticCustomizeTouchBarMenuItemEnabled = YES;
+  NSApplication.sharedApplication.automaticCustomizeTouchBarMenuItemEnabled = YES;
 }
 
 #pragma mark -
@@ -227,7 +232,7 @@ typedef NS_OPTIONS(NSInteger, MPAppStartupState) {
 - (void)menuNeedsUpdate:(NSMenu *)menu {
   if(menu == self.saveMenuItem.menu) {
     MPDocument *document = NSDocumentController.sharedDocumentController.currentDocument;
-    BOOL displayDots = (document.fileURL == nil || !document.compositeKey.hasPasswordOrKeyFile);
+    BOOL displayDots = (document.fileURL == nil || !document.compositeKey.hasKeys);
     NSString *saveTitle =  displayDots ? NSLocalizedString(@"SAVE_WITH_DOTS", "Save file menu item title when save will prompt for a location to save or ask for a password/key") : NSLocalizedString(@"SAVE", "Save file menu item title when save will just save the file");
     self.saveMenuItem.title = saveTitle;
   }
@@ -362,7 +367,7 @@ typedef NS_OPTIONS(NSInteger, MPAppStartupState) {
   [alert addButtonWithTitle:NSLocalizedString(@"OK", @"Ok Button to dismiss disabled updates alert")];
   [alert runModal];
 #else
-  [[SUUpdater sharedUpdater] checkForUpdates:sender];
+  [self.updater checkForUpdates];
 #endif
 }
 

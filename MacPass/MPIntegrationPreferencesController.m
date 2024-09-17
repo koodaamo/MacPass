@@ -24,6 +24,7 @@
 #import "MPSettingsHelper.h"
 #import "MPIconHelper.h"
 #import "MPAutotypeDoctor.h"
+#import "MPConstants.h"
 
 #import "DDHotKeyCenter.h"
 #import "DDHotKey+MacPassAdditions.h"
@@ -67,16 +68,28 @@
   [self.matchHostCheckBox bind:NSValueBinding toObject:defaultsController withKeyPath:[MPSettingsHelper defaultControllerPathForKey:kMPSettingsKeyAutotypeMatchHost] options:nil];
   [self.matchTagsCheckBox bind:NSValueBinding toObject:defaultsController withKeyPath:[MPSettingsHelper defaultControllerPathForKey:kMPSettingsKeyAutotypeMatchTags] options:nil];
   
-  [self.sendCommandForControlCheckBox bind:NSValueBinding toObject:defaultsController withKeyPath:[MPSettingsHelper defaultControllerPathForKey:kMPSettingsKeySendCommandForControlKey] options:nil];
-    
+  [self.sendCommandForControlCheckBox bind:NSValueBinding
+                                  toObject:defaultsController
+                               withKeyPath:[MPSettingsHelper defaultControllerPathForKey:kMPSettingsKeySendCommandForControlKey]
+                                   options:nil];
+  
+  [self.alwaysShowConfirmationBeforeAutotypeCheckBox bind:NSValueBinding
+                                                 toObject:defaultsController
+                                              withKeyPath:[MPSettingsHelper defaultControllerPathForKey:kMPSettingsKeyGloablAutotypeAlwaysShowCandidateSelection]
+                                                  options:nil];
+  
   [self _showKeyCodeMissingKeyWarning:NO];
   [self _updateAccessabilityWarning];
 }
 
 - (void)willShowTab {
-  _hotKey = [DDHotKey hotKeyWithKeyData:[NSUserDefaults.standardUserDefaults dataForKey:kMPSettingsKeyGlobalAutotypeKeyDataKey]];
-  /* Change any invalid hotkeys to valid ones? */
-  self.hotKeyTextField.hotKey = self.hotKey;
+  if(!_hotKey) {
+    _hotKey = [DDHotKey hotKeyWithKeyData:[NSUserDefaults.standardUserDefaults dataForKey:kMPSettingsKeyGlobalAutotypeKeyDataKey]];
+  }
+  /* Only call the setter if the hotkeys are different, otherwise the dealloc call will unregister them*/
+  if(![self.hotKeyTextField.hotKey isEqual:self.hotKey]) {
+    self.hotKeyTextField.hotKey = self.hotKey;
+  }
 }
 
 #pragma mark -
@@ -120,5 +133,33 @@
 
 - (void)runAutotypeDoctor:(id)sender {
   [MPAutotypeDoctor.defaultDoctor runChecksAndPresentResults];
+}
+
+#pragma mark -
+#pragma mark Keychain Actions
+- (IBAction)renewTouchIdKey:(id)sender {
+    NSData* publicKeyTag = [MPTouchIdUnlockPublicKeyTag dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *publicKeyQuery = @{
+      (id)kSecClass: (id)kSecClassKey,
+      (id)kSecAttrApplicationTag: publicKeyTag,
+      (id)kSecReturnRef: @YES,
+    };
+    OSStatus status = SecItemDelete((__bridge CFDictionaryRef)publicKeyQuery);
+    if (status != errSecSuccess) {
+      NSString* description = CFBridgingRelease(SecCopyErrorMessageString(status, NULL));
+        NSLog(@"Error while trying to delete public key from Keychain: %@", description);
+    }
+    
+    NSData* privateKeyTag = [MPTouchIdUnlockPrivateKeyTag dataUsingEncoding:NSUTF8StringEncoding];
+    NSDictionary *privateKeyQuery = @{
+      (id)kSecClass: (id)kSecClassKey,
+      (id)kSecAttrApplicationTag: privateKeyTag,
+      (id)kSecReturnRef: @YES,
+    };
+    status = SecItemDelete((__bridge CFDictionaryRef)privateKeyQuery);
+    if (status != errSecSuccess) {
+        NSString* description = CFBridgingRelease(SecCopyErrorMessageString(status, NULL));
+        NSLog(@"Error while trying to delete private key from Keychain: %@", description);
+    }
 }
 @end

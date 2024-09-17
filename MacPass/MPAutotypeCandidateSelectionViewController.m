@@ -33,7 +33,7 @@
 @property (strong) IBOutlet NSButton *selectAutotypeContextButton;
 @property (strong) IBOutlet NSTableView *contextTableView;
 @property (strong) IBOutlet NSTextField *messageTextField;
-
+@property (strong) IBOutlet NSImageView *targetApplicationImageView;
 @end
 
 @implementation MPAutotypeCandidateSelectionViewController
@@ -44,9 +44,27 @@
 
 - (void)viewDidLoad {
   [super viewDidLoad];
-  NSString *template = NSLocalizedString(@"AUTOTYPE_CANDIDATE_SELECTION_WINDOW_MESSAGE_%@", "Message text in the autotype selection window. Placeholder is %1 - windowTitle");
-  self.messageTextField.stringValue = [NSString stringWithFormat:template, self.environment.windowTitle];
+
   self.selectAutotypeContextButton.enabled = NO;
+
+  NSRunningApplication *targetApplication = [NSRunningApplication runningApplicationWithProcessIdentifier:self.environment.pid];
+  if(nil != targetApplication) {
+    self.targetApplicationImageView.image = [self _composeInfoImage];
+  }
+  
+  NSString *template = @"";
+  if(self.candidates.count > 1) {
+    template = NSLocalizedString(@"AUTOTYPE_CANDIDATE_SELECTION_WINDOW_MESSAGE_%@_%@", "Message text in the autotype selection window. Placeholder is %1 - applicationName, %2 windowTitle");
+    self.messageTextField.stringValue = [NSString stringWithFormat:template, targetApplication.localizedName, self.environment.windowTitle];
+    NSInteger rows = MIN(self.candidates.count, 5);
+    [self.contextTableView.enclosingScrollView.heightAnchor constraintGreaterThanOrEqualToConstant:39 * rows].active = YES;
+  }
+  else {
+    template = NSLocalizedString(@"AUTOTYPE_CANDIDATE_CONFIRMATION_WINDOW_MESSAGE_%@_%@", "Message text in the autotype confirmation window. Placeholder is %1 - applicationName, %2 windowTitle");
+    self.messageTextField.stringValue = [NSString stringWithFormat:template, targetApplication.localizedName, self.environment.windowTitle];
+    [self.contextTableView.enclosingScrollView.heightAnchor constraintEqualToConstant:39].active = YES;
+  }
+
   NSNotification *notification = [NSNotification notificationWithName:NSTableViewSelectionDidChangeNotification object:self.contextTableView];
   [self tableViewSelectionDidChange:notification];
 }
@@ -91,5 +109,41 @@
   [MPAutotypeDaemon.defaultDaemon cancelAutotypeContextSelectionForEnvironment:self.environment];
 }
 
+- (NSImage *)_composeInfoImage {
+  static const uint32_t iconSize = 64;
+  uint32_t imageWidth = 256;
+  uint32_t imageHeight = 256;
+  
+  NSRunningApplication *targetApplication = [NSRunningApplication runningApplicationWithProcessIdentifier:self.environment.pid];
+  CGImageRef windowGrab = CGWindowListCreateImage(CGRectNull, kCGWindowListOptionIncludingWindow, self.environment.windowId, kCGWindowImageDefault | kCGWindowImageBestResolution);
+  NSImage *windowImage = [[NSImage alloc] initWithCGImage:windowGrab size:NSZeroSize];
+  CFRelease(windowGrab);
+  
+  if(windowImage.size.width > windowImage.size.height) {
+    imageHeight = imageWidth * (windowImage.size.height / windowImage.size.width);
+  }
+  else {
+    imageWidth = imageWidth * (windowImage.size.width / windowImage.size.height);
+  }
+  
+  if(!targetApplication.icon) {
+    return windowImage;
+  }
+  
+  NSImage *composite = [[NSImage alloc] initWithSize:NSMakeSize(MAX(imageWidth, iconSize), MAX(imageHeight, iconSize))];
+  [composite lockFocus];
+  /* draw the image at the top left */
+  [windowImage drawInRect:NSMakeRect(composite.size.width - imageWidth, composite.size.height - imageHeight, imageWidth, imageHeight)
+                 fromRect:NSZeroRect
+                operation:NSCompositingOperationSourceOver
+                 fraction:1];
+  /* draw the app icon at the bottom left */
+  [targetApplication.icon drawInRect:NSMakeRect(0, 0, iconSize, iconSize)
+                            fromRect:NSZeroRect
+                           operation:NSCompositingOperationSourceOver
+                            fraction:1];
+  [composite unlockFocus];
+  return composite;
+}
 
 @end

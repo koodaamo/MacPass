@@ -25,12 +25,6 @@
 /* Toolbar item with action menu */
 "ACTION" = "Action";
 
-/* Menu item title for adding an hmacotp config attribute */
-"ADD_CUSTOM_ATTRIBUTE_HMACOTP_CONFIG" = "Add HMACOTP Configuration";
-
-/* Menu item title for adding an hmacotp seed attribute */
-"ADD_CUSTOM_ATTRIBUTE_HMACOTP_SEED" = "Add HMACOTP Seed";
-
 /* Menu displayed for adding special custom keys */
 "ADD_CUSTOM_FIELD_CONTEXT_MENU" = "Add Custom Field Menu";
 
@@ -41,13 +35,13 @@
 "ALERT_ASK_FOR_PLUGIN_REPOSITORY_ALLOW_DOWNLOAD" = "Update definitions online";
 
 /* Informative text displayed on the alert that shows up when MacPass asks for permssion to download the plugin repository JSON file */
-"ALERT_ASK_FOR_PLUGIN_REPOSITORY_CONNECTION_PERMISSION_INFORMATIVE_TEXT" = "The plugin defintions are hosted online at https://macpassapp.org. MacPass would like to download those files to ensure the data is up to date.";
+"ALERT_ASK_FOR_PLUGIN_REPOSITORY_CONNECTION_PERMISSION_INFORMATIVE_TEXT" = "The plugin definitions are hosted online at https://macpassapp.org. MacPass would like to download those files to ensure the data is up to date.";
 
 /* Message displayed on the alert that asks for permission to download the plugin repository JSON file */
 "ALERT_ASK_FOR_PLUGIN_REPOSITORY_CONNECTION_PERMISSION_MESSAGE" = "MacPass would like to check for updates of plugin definitions online";
 
 /* Disallow the download of the plugin repository file */
-"ALERT_ASK_FOR_PLUGIN_REPOSITORY_DISALLOW_DOWNLOAD" = "Do not update defintions";
+"ALERT_ASK_FOR_PLUGIN_REPOSITORY_DISALLOW_DOWNLOAD" = "Do not update definitions";
 
 /* Button in dialog to leave plugin ds disabled and continiue! */
 "ALERT_INCOMPATIBLE_PLUGINS_ENCOUNTERED_BUTTON_OK" = "OK";
@@ -101,8 +95,11 @@
 /* Menu item for automatic trash creation */
 "AUTOCREATE_TRASH_FOLDER" = "Create Automatically";
 
-/* Message text in the autotype selection window. Placeholder is %1 - windowTitle */
-"AUTOTYPE_CANDIDATE_SELECTION_WINDOW_MESSAGE_%@" = "There are multiple matches for the current window: %@. Please select which match should be used.";
+/* Message text in the autotype confirmation window. Placeholder is %1 - applicationName, %2 windowTitle */
+"AUTOTYPE_CANDIDATE_CONFIRMATION_WINDOW_MESSAGE_%@_%@" = "Autotype has found a match for window \"%2$@\" of application \"%1$@\". Please confirm to continue the execution.";
+
+/* Message text in the autotype selection window. Placeholder is %1 - applicationName, %2 windowTitle */
+"AUTOTYPE_CANDIDATE_SELECTION_WINDOW_MESSAGE_%@_%@" = "There are multiple matches for the window \"%2$@\" of application \"%1$@\". Please select which match should be used.";
 
 /* Window title for the stand-alone password creator window */
 "AUTOTYPE_DOCTOR_RESULTS_WINDOW_TITLE" = "Autotype Doctor";
@@ -213,6 +210,10 @@
 /* Context menu that copies reference to username */
 "COPIED_USERNAME_REFERENCE" = "Reference to username copied!";
 
+/* Button to copy the value of an Attribute
+   Copy the TOTP value to the clipboard */
+"COPY" = "Copy";
+
 /* Submenu to copy attributes as reference */
 "COPY_AS_REFERENCE" = "Copy Reference To…";
 
@@ -260,6 +261,10 @@
 
 /* Context menu that copies reference to username */
 "COPY_USERNAME_REFERENCE" = "Username";
+
+/* Creating date column title
+   Menu item to toggle display of created date column in entry table */
+"CREATED" = "Created";
 
 /* Custom attribute reference item */
 "CUSTOM_ATTRIBUTE" = "Custom Attribute";
@@ -370,9 +375,6 @@
 /* Passwords do not match */
 "ERROR_PASSWORD_MISSMATCH" = "Passwords do not match!";
 
-/* Passwords do not match, keyfile is invalid */
-"ERROR_PASSWORD_MISSMATCH_INVALID_KEYFILE" = "Passwords do not match and keyfile is invalid!";
-
 /* Recommend/Enforce key change intervall format */
 "EVERY_%ld_DAYS" = "Every %ld days";
 
@@ -418,6 +420,15 @@
 
 /* Group column title */
 "GROUP" = "Group";
+
+/* SHA 1 hash algoritm menu item */
+"HASH_SHA1" = "Sha1";
+
+/* SHA 256 hash algoritm menu item */
+"HASH_SHA256" = "Sha256";
+
+/* SHA 512 hash algoritm menu item */
+"HASH_SHA512" = "Sha512";
 
 /* History count column title
    Menu item to toggle display of history count column in entry table */
@@ -483,6 +494,9 @@
    Toolbar item new entry */
 "NEW_ENTRY" = "New Entry";
 
+/* Submen to create entries from tempaltes */
+"NEW_ENTRY_FROM_TEMPLATE" = "New Entry…";
+
 /* Submenu to add an entry via template */
 "NEW_ENTRY_WITH_TEMPLATE_%@" = "from %@";
 
@@ -542,6 +556,15 @@
 
 /* Select Browser */
 "OTHER_BROWSER" = "Select Browser…";
+
+/* OTP custom type  */
+"OTP_CUSTOM" = "Custom settings";
+
+/* OTP type RFC  */
+"OTP_RFC" = "RFC 6238";
+
+/* OTP type Steam  */
+"OTP_STEAM" = "Steam";
 
 /* Value field for reference lookup */
 "OUTPUT_VALUE" = "Output Value";
@@ -714,8 +737,14 @@
 /* Checkbox in dialog to set the selection as default file change strategy! */
 "SET_AS_DEFAULT_FILE_CHANGE_STRATEGY" = "Use this method as default. You can change this at any time in the preferences.";
 
+/* Menu item title editing TOTP settings */
+"SETUP_TOTP_SETTINGS" = "Edit Time-One-Time-Password settings.";
+
 /* Action button in Notification to show the Autotype Doctor */
 "SHOW_AUTOTYPE_DOCTOR" = "Show Autotype Doctor";
+
+/* Menu item to toggle display type of passwords */
+"SHOW_CLEAR_TEXT_PASSWORDS" = "Show Passwords";
 
 /* Menu item to show the entries group in the outline view */
 "SHOW_GROUP_IN_OUTLINE" = "Show Group in Outline";
@@ -735,6 +764,12 @@
 
 /* Toolbar item to perform autotype */
 "TOOLBAR_PERFORM_AUTOTYPE_FOR_ENTRY" = "Autotype";
+
+/* Field TOTP was copied to the pasteboard */
+"TOTP" = "TOTP";
+
+/* Time in seconds remaining for a valid TOTP string, format should be %ld */
+"TOTP_REMAINING_TIME_%ld_SECONDS" = "%ld s";
 
 /* Touchbar button label for choosing the keyfile */
 "TOUCHBAR_CHOOSE_KEYFILE" = "Choose Keyfile";
@@ -817,8 +852,12 @@
 /* Error message displayed when a keepass database file is set as the key file */
 "WARNING_DATABASE_FILE_SELECTED_AS_KEY_FILE" = "You should not use another database file as a key file since it might change and prevent you from reopening the current file.";
 
-/* No Key or Password */
-"WARNING_NO_PASSWORD_OR_KEYFILE" = "No password or keyfile supplied!";
+/* No key file is set
+ Warning tha no key file is set when chaning the password */
+"WARNING_NO_KEYFILE" = "No key file is set";
+
+/* Warning if no password is set when chaning the password */
+"WARNING_NO_PASSWORD" = "No password is set";
 
 /* Informative Text displayed when clearing the Trash */
 "WARNING_ON_DELETE_TRASHED_NODE_DESCRIPTION" = "The Trashed item(s) will be deleted!";
@@ -846,3 +885,4 @@
 
 /* Yesterday */
 "YESTERDAY" = "Yesterday";
+

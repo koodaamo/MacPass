@@ -219,7 +219,8 @@ static MPAutotypeDaemon *_sharedInstance;
     NSNotificationCenter * __weak nc = [NSNotificationCenter defaultCenter];
     MPAutotypeDaemon * __weak welf = self;
     NSTimeInterval requestTime = NSDate.date.timeIntervalSinceReferenceDate;
-    id __block unlockToken = [nc addObserverForName:MPDocumentDidUnlockDatabaseNotification
+    id __block unlockToken; // silence init value never read analyzer warning
+    unlockToken = [nc addObserverForName:MPDocumentDidUnlockDatabaseNotification
                                              object:nil
                                               queue:NSOperationQueue.mainQueue
                                          usingBlock:^(NSNotification *notification) {
@@ -247,7 +248,8 @@ static MPAutotypeDaemon *_sharedInstance;
     NSNotificationCenter * __weak nc = [NSNotificationCenter defaultCenter];
     MPAutotypeDaemon * __weak welf = self;
     NSTimeInterval requestTime = NSDate.date.timeIntervalSinceReferenceDate;
-    id __block unlockToken = [nc addObserverForName:MPDocumentDidUnlockDatabaseNotification
+    id __block unlockToken; // silence init value never read analyzer warning
+    unlockToken = [nc addObserverForName:MPDocumentDidUnlockDatabaseNotification
                                              object:nil
                                               queue:NSOperationQueue.mainQueue
                                          usingBlock:^(NSNotification *notification) {
@@ -278,10 +280,6 @@ static MPAutotypeDaemon *_sharedInstance;
 }
 
 - (MPAutotypeContext *)_autotypeContextForDocuments:(NSArray<MPDocument *> *)documents withEnvironment:(MPAutotypeEnvironment *)environment {
-  /*
-   Query the document to generate a autotype command list for the window title
-   We do not care where this came form, just get the autotype commands
-   */
   NSMutableArray *autotypeCandidates = [[NSMutableArray alloc] init];
   for(MPDocument *document in documents) {
     NSArray *contexts = [document autotypContextsForWindowTitle:environment.windowTitle preferredEntry:environment.preferredEntry];
@@ -289,17 +287,31 @@ static MPAutotypeDaemon *_sharedInstance;
       [autotypeCandidates addObjectsFromArray:contexts];
     }
   }
-  
-  if(autotypeCandidates.count <= 1) {
-    return autotypeCandidates.lastObject;
+
+  if(autotypeCandidates.count == 0) {
+    return nil; // we do not have found anything
   }
-  [self _presentCandiadates:autotypeCandidates forEnvironment:environment];
-  return nil; // Nothing to do, we get called back by the window
+  /* present selection and return if more than one hit */
+  if(autotypeCandidates.count > 1) {
+    [self _presentCandiadates:autotypeCandidates forEnvironment:environment];
+    return nil;
+  }
+  
+  BOOL isGlobalAutotype = (environment.preferredEntry == nil);
+  BOOL alwaysShowCandidateSelection = [NSUserDefaults.standardUserDefaults boolForKey:kMPSettingsKeyGloablAutotypeAlwaysShowCandidateSelection];
+  
+  /* present confirmation if set on global autotype */
+  if(isGlobalAutotype && alwaysShowCandidateSelection) {
+    [self _presentCandiadates:autotypeCandidates forEnvironment:environment];
+    return nil;
+  }
+  /* return single hit */
+  return autotypeCandidates.firstObject;
 }
 
 - (void)_runAutotypeWithEnvironment:(MPAutotypeEnvironment *)environment forContext:(MPAutotypeContext *)context {
   if(nil == environment) {
-    return; // no Environment to work in
+    return; // no environment to work in
   }
   if(nil == context) {
     return; // No context to work with
@@ -309,7 +321,7 @@ static MPAutotypeDaemon *_sharedInstance;
     [welf _runAutotypeWithEnvironment:environment forContext:context];
   }];
   if(!appIsFrontmost) {
-    return; // We will get called back when the application is in front - hopfully
+    return; // We will get called back when the application is in front
   }
   
   useconds_t globalDelay = 0;
@@ -363,7 +375,7 @@ static MPAutotypeDaemon *_sharedInstance;
 - (void)_presentCandiadates:(NSArray *)candidates forEnvironment:(MPAutotypeEnvironment *)environment {
   if(!self.matchSelectionWindow) {
     self.matchSelectionWindow = [[NSPanel alloc] initWithContentRect:NSMakeRect(0, 0, 100, 100)
-                                                           styleMask:NSWindowStyleMaskNonactivatingPanel|NSWindowStyleMaskTitled
+                                                           styleMask:NSWindowStyleMaskResizable|NSWindowStyleMaskNonactivatingPanel|NSWindowStyleMaskTitled
                                                              backing:NSBackingStoreBuffered
                                                                defer:YES];
     self.matchSelectionWindow.level = kCGAssistiveTechHighWindowLevel;
@@ -398,7 +410,8 @@ static MPAutotypeDaemon *_sharedInstance;
   }
 
   NSNotificationCenter * __weak nc = NSWorkspace.sharedWorkspace.notificationCenter;
-  id __block didActivateToken = [nc addObserverForName:NSWorkspaceDidActivateApplicationNotification
+  id __block didActivateToken; // silence init value never read analyzer warning
+  didActivateToken = [nc addObserverForName:NSWorkspaceDidActivateApplicationNotification
                                            object:nil
                                             queue:NSOperationQueue.mainQueue
                                        usingBlock:^(NSNotification *notification) {

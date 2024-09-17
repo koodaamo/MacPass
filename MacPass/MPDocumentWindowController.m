@@ -100,10 +100,23 @@ typedef void (^MPPasswordChangedBlock)(BOOL didChangePassword);
   [super windowDidLoad];
   
   self.window.delegate = self.documentWindowDelegate;
+  if (@available(macOS 11.0, *)) {
+    /* let the user decide how to dipsplay the toolbar */
+    BOOL useUnifiedToolbar = [NSUserDefaults.standardUserDefaults boolForKey:kMPSettingsKeyUseUnifiedToolbar];
+    if(useUnifiedToolbar) {
+      self.window.toolbarStyle = NSWindowToolbarStyleAutomatic;
+      // Do not use full size since the sidebar takes too much room!
+      // self.window.styleMask |= NSWindowStyleMaskFullSizeContentView;
+    }
+    else {
+      self.window.toolbarStyle = NSWindowToolbarStyleExpanded;
+    }
+  }
   [self.window registerForDraggedTypes:@[NSURLPboardType]];
   
   MPDocument *document = self.document;
   
+  [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(_didRevertDocument:) name:MPDocumentDidRevertNotification object:document];
   [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(_didUnlockDatabase:) name:MPDocumentDidUnlockDatabaseNotification object:document];
   [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(_didAddEntry:) name:MPDocumentDidAddEntryNotification object:document];
   [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(_didAddGroup:) name:MPDocumentDidAddGroupNotification object:document];
@@ -151,8 +164,8 @@ typedef void (^MPPasswordChangedBlock)(BOOL didChangePassword);
     /* enqueue async into main to catch some cases, where the UI would not set the responder correctly */
     MPDocumentWindowController * __weak welf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSResponder *responder = ((MPViewController *)contentViewController).reconmendedFirstResponder;
-        [welf.window makeFirstResponder:responder];
+      NSResponder *responder = ((MPViewController *)contentViewController).reconmendedFirstResponder;
+      [welf.window makeFirstResponder:responder];
     });
   }
 }
@@ -176,6 +189,10 @@ typedef void (^MPPasswordChangedBlock)(BOOL didChangePassword);
 
 - (void)_didUnlockDatabase:(NSNotification *)notification {  
   [self showEntries];
+  BOOL focusSearchAfterUnlock = [NSUserDefaults.standardUserDefaults boolForKey:kMPSettingsKeyFocusSearchAfterUnlock];
+  if(focusSearchAfterUnlock) {
+    [self.document performCustomSearch:self];
+  }
   /* Show password reminders */
   [self _presentPasswordIntervalAlerts];
 }
@@ -320,12 +337,11 @@ typedef void (^MPPasswordChangedBlock)(BOOL didChangePassword);
     self.passwordInputController = [[MPPasswordInputController alloc] init];
   }
   self.contentViewController = self.passwordInputController;
-  [self.passwordInputController requestPasswordWithMessage:message cancelLabel:nil completionHandler:^BOOL(NSString *password, NSURL *keyURL, BOOL didCancel, NSError *__autoreleasing *error) {
+  [self.passwordInputController requestPasswordWithMessage:message cancelLabel:nil completionHandler:^BOOL(KPKCompositeKey* compositeKey, NSURL* keyURL, BOOL didCancel, NSError *__autoreleasing *error) {
     if(didCancel) {
       return NO;
     }
-    return [((MPDocument *)self.document) unlockWithPassword:password keyFileURL:keyURL error:error];
-    
+    return [((MPDocument *)self.document) unlockWithPassword:compositeKey keyFileURL:keyURL error:error ];
   }];
 }
 
@@ -426,7 +442,7 @@ typedef void (^MPPasswordChangedBlock)(BOOL didChangePassword);
 
 - (void)pickExpiryDate:(id)sender {
   // FIXME: use propert responder chain
-   [self.splitViewController.inspectorViewController pickExpiryDate:sender];
+  [self.splitViewController.inspectorViewController pickExpiryDate:sender];
 }
 
 - (void)showPluginData:(id)sender {
@@ -470,7 +486,6 @@ typedef void (^MPPasswordChangedBlock)(BOOL didChangePassword);
 - (void)showEntries {
   self.contentViewController = self.splitViewController;
   [self.splitViewController showOutline];
-
 }
 
 - (void)showGroupInOutline:(id)sender {

@@ -22,6 +22,10 @@
 
 #import <Cocoa/Cocoa.h>
 
+/* TouchID */
+APPKIT_EXTERN NSString *const kMPSettingsKeyTouchIdEnabled;
+APPKIT_EXTERN NSString *const kMPSettingsKeyTouchIdEncryptedKeyStore;       // NSDictionary with hased file names mapped to keys
+
 /* Clipboard */
 APPKIT_EXTERN NSString *const kMPSettingsKeyPasteboardClearTimeout;
 APPKIT_EXTERN NSString *const kMPSettingsKeyClearPasteboardOnQuit;
@@ -34,9 +38,14 @@ APPKIT_EXTERN NSString *const kMPSettingsKeyReopenLastDatabaseOnLaunch;
 APPKIT_EXTERN NSString *const kMPSettingsKeyQuitOnLastWindowClose;          // Quit MacPass when the user closes the last window
 APPKIT_EXTERN NSString *const kMPSettingsKeyFileChangeStrategy;
 APPKIT_EXTERN NSString *const kMPSettingsKeyEnableAutosave;                 // if set to YES MacPass support Autosaving for documents
+APPKIT_EXTERN NSString *const kMPSettingsKeyFocusSearchAfterUnlock;         // Enter search after unlocking the database
+
+/* Entry Table Display */
+APPKIT_EXTERN NSString *const kMPSettingsKeyDisplayClearTextPasswordsInEntryList;
 
 /* URL handling */
 APPKIT_EXTERN NSString *const kMPSettingsKeyBrowserBundleId;
+APPKIT_EXTERN NSString *const kMPSettingsKeyUsePrivateBrowsingWhenOpeningURLs;
 
 /* Autolock */
 APPKIT_EXTERN NSString *const kMPSettingsKeyLockOnSleep;
@@ -61,15 +70,15 @@ APPKIT_EXTERN NSString *const kMPSettingsKeyRememeberdKeysForDatabases;       //
 APPKIT_EXTERN NSString *const kMPSettingsKeyRememberKeyFilesForDatabases;     // YES if key files should be remembers
 
 /* Autotype */
-APPKIT_EXTERN NSString *const kMPSettingsKeySendCommandForControlKey;         // Should MacPass swap control for command. This is useful in a cross platform environment
-APPKIT_EXTERN NSString *const kMPSettingsKeyEnableGlobalAutotype;             // Is Global Autotype enabled?
-APPKIT_EXTERN NSString *const kMPSettingsKeyGlobalAutotypeKeyDataKey;         // The stored Data for the user defined global autotype key
-APPKIT_EXTERN NSString *const kMPSettingsKeyDefaultGlobalAutotypeSequence;    // Default sequence used for Autotype
-APPKIT_EXTERN NSString *const kMPSettingsKeyAutotypeMatchTitle;               // Autotype lookup includes entry title
-APPKIT_EXTERN NSString *const kMPSettingsKeyAutotypeMatchURL;                 // Autotype lookup includes entry URL
-APPKIT_EXTERN NSString *const kMPSettingsKeyAutotypeMatchHost;                // Autotype lookup includes host part of entry URL
-APPKIT_EXTERN NSString *const kMPSettingsKeyAutotypeMatchTags;                // Autotype lookup includes tags for entries
-APPKIT_EXTERN NSString *const kMPSettingsKeyAutotpyeHideMissingPermissionsWarning;
+APPKIT_EXTERN NSString *const kMPSettingsKeySendCommandForControlKey;                   // Should MacPass swap control for command. This is useful in a cross platform environment
+APPKIT_EXTERN NSString *const kMPSettingsKeyEnableGlobalAutotype;                       // Is Global Autotype enabled?
+APPKIT_EXTERN NSString *const kMPSettingsKeyGlobalAutotypeKeyDataKey;                   // The stored Data for the user defined global autotype key
+APPKIT_EXTERN NSString *const kMPSettingsKeyDefaultGlobalAutotypeSequence;              // Default sequence used for Autotype
+APPKIT_EXTERN NSString *const kMPSettingsKeyAutotypeMatchTitle;                         // Autotype lookup includes entry title
+APPKIT_EXTERN NSString *const kMPSettingsKeyAutotypeMatchURL;                           // Autotype lookup includes entry URL
+APPKIT_EXTERN NSString *const kMPSettingsKeyAutotypeMatchHost;                          // Autotype lookup includes host part of entry URL
+APPKIT_EXTERN NSString *const kMPSettingsKeyAutotypeMatchTags;                          // Autotype lookup includes tags for entries
+APPKIT_EXTERN NSString *const kMPSettingsKeyGloablAutotypeAlwaysShowCandidateSelection; // If YES, will always display then candidate selection window befor perfoming an Autotype
 
 /* Search */
 APPKIT_EXTERN NSString *const kMPSettingsKeyEntrySearchFilterContext;
@@ -81,6 +90,7 @@ APPKIT_EXTERN NSString *const kMPSettingsKeyEnableQuicklookPreview;
 APPKIT_EXTERN NSString *const kMPSettingsKeyDoubleClickURLAction;
 APPKIT_EXTERN NSString *const kMPSettingsKeyDoubleClickTitleAction;
 APPKIT_EXTERN NSString *const kMPSettingsKeyUpdatePasswordOnTemplateEntries;
+APPKIT_EXTERN NSString *const kMPSettingsKeyGeneratePasswordForNewEntires;
 APPKIT_EXTERN NSString *const kMPSettingsKeyHideAfterCopyToClipboard;
 
 /* Plugins */
@@ -89,10 +99,12 @@ APPKIT_EXTERN NSString *const kMPSettingsKeyDisabledPlugins;                // N
 APPKIT_EXTERN NSString *const kMPSettingsKeyLoadIncompatiblePlugins;        // If set to YES incompatible plugins (no version info, marked as incompatible, etc) will be loaded regardless
 APPKIT_EXTERN NSString *const kMPSettingsKeyHideIncopatiblePluginsWarning;  // Do not show an alert, when MacPass encounteres incompatible plugins
 APPKIT_EXTERN NSString *const kMPSettingsKeyAllowRemoteFetchOfPluginRepository; // Allow the download of the plugin repository file
-APPKIT_EXTERN NSString *const kMPSettingsKeyPluginHideAksForRemoveConnectionPermission;
 
 /* Network */
 APPKIT_EXTERN NSString *const kMPSettingsKeyFaviconDownloadMethod;
+
+/* UI */
+APPKIT_EXTERN NSString *const kMPSettingsKeyUseUnifiedToolbar;
 
 typedef NS_ENUM(NSUInteger, MPFileChangeStrategy) {
   MPFileChangeStrategyAsk,
@@ -115,6 +127,14 @@ typedef NS_ENUM(NSUInteger, MPFaviconDownloadMethod) {
   MPFaviconDownloadMethodDirect,
   MPFaviconDownloadMethodDuckDuckGo,
   MPFaviconDownloadMethodGoogle,
+};
+
+// the values are mapped to NSControlStateValue for backwards compatibilty
+// older implementations did use a checkbox to store this setting
+typedef NS_ENUM(NSInteger, MPTouchIDKeyStorage) {
+  MPTouchIDKeyStorageTransient = NSControlStateValueMixed,
+  MPTouchIDKeyStorageDisabled = NSControlStateValueOff,
+  MPTouchIDKeyStoragePersistent = NSControlStateValueOn
 };
 
 /* Password Generation */

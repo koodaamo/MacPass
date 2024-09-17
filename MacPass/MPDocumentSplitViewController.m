@@ -39,7 +39,29 @@
 
 - (void)viewWillLayout {
   self.splitView.autosaveName = @"SplitView";
+  [super viewWillLayout];
 }
+
+/*- (void)updateViewConstraints {
+  [super updateViewConstraints];
+  if(self.inspectorTopEdgeConstraint) {
+    if(!self.inspectorTopEdgeConstraint.isActive)  {
+      self.inspectorTopEdgeConstraint.active = YES;
+    }
+    return; // everything is set up.
+  }
+  // setup the constraint if needed
+  NSWindow *window = self.view.window;
+  if(!window) {
+    return;
+  }
+  NSSplitViewItem *inspector = [self splitViewItemForViewController:self.inspectorViewController];
+  NSSplitViewItem *entries = [self splitViewItemForViewController:self.entryViewController];
+  NSSplitViewItem *outline = [self splitViewItemForViewController:self.outlineViewController];
+  [inspector.viewController.view.topAnchor constraintEqualToAnchor:[window.contentLayoutGuide topAnchor]].active = YES;
+  [entries.viewController.view.topAnchor constraintEqualToAnchor:[window.contentLayoutGuide topAnchor]].active = YES;
+  [outline.viewController.view.topAnchor constraintEqualToAnchor:[window.contentLayoutGuide topAnchor]].active = YES;
+}*/
 
 - (void)viewDidLoad {
   [super viewDidLoad];
@@ -61,7 +83,7 @@
   [self addSplitViewItem:outlineItem];
   [self addSplitViewItem:entries];
   [self addSplitViewItem:inspector];
-
+  
   BOOL showInspector = [NSUserDefaults.standardUserDefaults boolForKey:kMPSettingsKeyShowInspector];
   inspector.collapsed = !showInspector;
 }

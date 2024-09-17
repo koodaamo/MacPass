@@ -46,6 +46,7 @@ NSString *const _MPOutlinveViewHeaderViewIdentifier = @"HeaderCell";
 
 @interface MPOutlineViewController () {
   BOOL _bindingEstablished;
+  NSIndexSet *_storedSelectionIndexSet;
   MPOutlineContextMenuDelegate *_menuDelegate;
   
 }
@@ -100,7 +101,6 @@ NSString *const _MPOutlinveViewHeaderViewIdentifier = @"HeaderCell";
                                              name:MPDidActivateViewNotification
                                            object:self.outlineView];
   
-  
   NSView *clipView = self.outlineView.enclosingScrollView.contentView;
   [NSNotificationCenter.defaultCenter addObserver:self
                                          selector:@selector(_outlineDidScroll:)
@@ -136,7 +136,7 @@ NSString *const _MPOutlinveViewHeaderViewIdentifier = @"HeaderCell";
   NSInteger visibleRow = [self _rowForUUID:visibleUUID node:node];
   selectRow = selectRow > -1 ? selectRow : 1;
   [self.outlineView selectRowIndexes:[NSIndexSet indexSetWithIndex:selectRow] byExtendingSelection:NO];
-
+  
   if(visibleRow > -1) {
     NSRect rowRect = [self.outlineView rectOfRow:visibleRow];
     [self.outlineView scrollPoint:rowRect.origin];
@@ -225,7 +225,9 @@ NSString *const _MPOutlinveViewHeaderViewIdentifier = @"HeaderCell";
 #pragma mark Notifications
 - (void)registerNotificationsForDocument:(MPDocument *)document {
   [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(_didAddGroup:) name:MPDocumentDidAddGroupNotification object:document];
-    [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(_didRevertDocument:) name:MPDocumentDidRevertNotifiation object:document];
+  [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(_didRevertDocument:) name:MPDocumentDidRevertNotification object:document];
+  [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(_didEnterSearch:) name:MPDocumentDidEnterSearchNotification object:document];
+  [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(_didExitSearch:) name:MPDocumentDidExitSearchNotification object:document];
 }
 
 - (void)clearSelection {
@@ -271,6 +273,16 @@ NSString *const _MPOutlinveViewHeaderViewIdentifier = @"HeaderCell";
 }
 - (void)_didRevertDocument:(NSNotification *)notification {
   [self clearSelection];
+}
+
+- (void)_didEnterSearch:(NSNotification *)notification {
+  // store seelection
+  _storedSelectionIndexSet = self.outlineView.selectedRowIndexes;
+  [self clearSelection];
+}
+
+- (void)_didExitSearch:(NSNotification *)notification {
+  [self.outlineView selectRowIndexes:_storedSelectionIndexSet byExtendingSelection:NO];
 }
 
 - (id)itemUnderMouse {
@@ -322,10 +334,6 @@ NSString *const _MPOutlinveViewHeaderViewIdentifier = @"HeaderCell";
     NSTreeNode *node = [outlineView itemAtRow:idx];
     return [node.representedObject isKindOfClass:KPKGroup.class];
   }];
-}
-
-- (BOOL)outlineView:(NSOutlineView *)outlineView shouldSelectItem:(id)item {
-  return ![self _itemIsRootNode:item];
 }
 
 - (void)outlineViewSelectionDidChange:(NSNotification *)notification {

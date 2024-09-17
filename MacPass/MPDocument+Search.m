@@ -42,17 +42,19 @@ NSString *const kMPDocumentSearchResultsKey           = @"kMPDocumentSearchResul
 - (void)enterSearchWithContext:(MPEntrySearchContext *)context {
   /* the search context is loaded via defaults */
   self.searchContext = context;
-  [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateSearch:) name:NSUndoManagerDidRedoChangeNotification object:self.undoManager];
-  [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateSearch:) name:NSUndoManagerDidUndoChangeNotification object:self.undoManager];
-  /* Do not do this since it seems to break the undo/redo grouping completly!
-  [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateSearch:) name:NSUndoManagerDidCloseUndoGroupNotification object:self.undoManager];
-   */
+  [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateSearch:) name:KPKTreeDidAddEntryNotification object:self.tree];
+  [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateSearch:) name:KPKTreeDidAddGroupNotification object:self.tree];
+  [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateSearch:) name:KPKTreeDidRemoveEntryNotification object:self.tree];
+  [NSNotificationCenter.defaultCenter addObserver:self selector:@selector(updateSearch:) name:KPKTreeDidRemoveGroupNotification object:self.tree];
+
   [NSNotificationCenter.defaultCenter postNotificationName:MPDocumentDidEnterSearchNotification object:self];
   [self updateSearch:self];
+  /* clear selection */
+  self.selectedEntries = nil;
 }
 
 #pragma mark Actions
-- (IBAction)perfromCustomSearch:(id)sender {
+- (IBAction)performCustomSearch:(id)sender {
   [self enterSearchWithContext:[MPEntrySearchContext userContext]];
 }
 
@@ -74,11 +76,12 @@ NSString *const kMPDocumentSearchResultsKey           = @"kMPDocumentSearchResul
 }
 
 - (void)exitSearch:(id)sender {
-  [NSNotificationCenter.defaultCenter removeObserver:self name:NSUndoManagerDidUndoChangeNotification object:self.undoManager];
-  [NSNotificationCenter.defaultCenter removeObserver:self name:NSUndoManagerDidRedoChangeNotification object:self.undoManager];
-  /* No need to do this since we did not register in the first place see [MPDocument enterSearchWithContext:]
-  [NSNotificationCenter.defaultCenter removeObserver:self name:NSUndoManagerDidCloseUndoGroupNotification object:self.undoManager];
-   */
+  
+  [NSNotificationCenter.defaultCenter removeObserver:self name:KPKTreeDidAddEntryNotification object:self.tree];
+  [NSNotificationCenter.defaultCenter removeObserver:self name:KPKTreeDidAddGroupNotification object:self.tree];
+  [NSNotificationCenter.defaultCenter removeObserver:self name:KPKTreeDidRemoveEntryNotification object:self.tree];
+  [NSNotificationCenter.defaultCenter removeObserver:self name:KPKTreeDidRemoveGroupNotification object:self.tree];
+  
   self.searchContext = nil;
   [NSNotificationCenter.defaultCenter postNotificationName:MPDocumentDidExitSearchNotification object:self];
 }
@@ -102,15 +105,15 @@ NSString *const kMPDocumentSearchResultsKey           = @"kMPDocumentSearchResul
     NSAssert([sender isKindOfClass:NSMenuItem.class], @"Internal inconsitency. Did expect NSMenuItem expected, but got %@", [sender class]);
     state = ((NSMenuItem *)sender).state;
     /* Manually toggle the state since the popupbuttoncell doesn't do it like we want it to */
-    state = state == NSOnState ? NSOffState : NSOnState;
+    state = state == NSControlStateValueOn ? NSControlStateValueOff : NSControlStateValueOn;
   }
  
   switch(state) {
-    case NSOffState:
+    case NSControlStateValueOff:
       toggleFlag ^= MPEntrySearchAllCombineableFlags;
       newFlags = isSingleFlag ? MPEntrySearchNone : (self.searchContext.searchFlags & toggleFlag);
       break;
-    case NSOnState:
+    case NSControlStateValueOn:
       if(isSingleFlag ) {
         newFlags = toggleFlag; // This has to be either expired or double passwords
       }
